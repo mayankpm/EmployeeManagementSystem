@@ -1,97 +1,95 @@
+
 DROP DATABASE IF EXISTS EmployeeManagementSystem;
 CREATE DATABASE EmployeeManagementSystem;
 USE EmployeeManagementSystem;
 
--- Tables
 CREATE TABLE department (
-  DeptCode   varchar(10)  NOT NULL,
-  DeptName   varchar(50)  DEFAULT NULL,
-  AssignedHR int          DEFAULT NULL,
+  DeptCode varchar(10) NOT NULL,
+  DeptName varchar(50) DEFAULT NULL,
+  AssignedHR int DEFAULT NULL,
   PRIMARY KEY (DeptCode),
   UNIQUE KEY AssignedHR (AssignedHR)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 CREATE TABLE employee (
-  EmpId           int           NOT NULL AUTO_INCREMENT,
-  FirstName       varchar(50)   DEFAULT NULL,
-  LastName        varchar(50)   DEFAULT NULL,
-  Age             int           DEFAULT NULL,
-  Address         varchar(200)  DEFAULT NULL,
-  PersonalEmail   varchar(100)  DEFAULT NULL,
-  Phone           varchar(15)   DEFAULT NULL,
-  workMail        varchar(100)  DEFAULT NULL,
-  password        varchar(255)  DEFAULT NULL,
-  RoleCode        varchar(20)   DEFAULT NULL,
-  DeptCode        varchar(10)   DEFAULT NULL,
-  approval_status varchar(20)   DEFAULT 'UNDEFINED',
+  EmpId int NOT NULL AUTO_INCREMENT,
+  FirstName varchar(50) DEFAULT NULL,
+  LastName varchar(50) DEFAULT NULL,
+  Age int DEFAULT NULL,
+  Address varchar(200) DEFAULT NULL,
+  PersonalEmail varchar(100) DEFAULT NULL,
+  Phone varchar(15) DEFAULT NULL,
+  workMail varchar(100) DEFAULT NULL,
+  password varchar(255) DEFAULT NULL,
+  RoleCode varchar(20) DEFAULT NULL,
+  DeptCode varchar(10) DEFAULT NULL,
+  approval_status varchar(20) DEFAULT 'UNDEFINED',
   PRIMARY KEY (EmpId),
   KEY RoleCode (RoleCode),
   KEY DeptCode (DeptCode)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 CREATE TABLE payroll (
-  EmpId      int            NOT NULL,
-  DeptCode   varchar(10)    DEFAULT NULL,
-  Tax        decimal(10,2)  DEFAULT NULL,
-  Allowances decimal(10,2)  DEFAULT NULL,
-  Incentive  decimal(10,2)  DEFAULT NULL,
-  CTC        decimal(10,2)  DEFAULT NULL,
+  EmpId int NOT NULL,
+  DeptCode varchar(10) DEFAULT NULL,
+  Tax decimal(10,2) DEFAULT NULL,
+  Allowances decimal(10,2) DEFAULT NULL,
+  Incentive decimal(10,2) DEFAULT NULL,
+  CTC decimal(10,2) DEFAULT NULL,
   PRIMARY KEY (EmpId),
   KEY DeptCode (DeptCode)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 CREATE TABLE salary (
-  RoleCode   varchar(20)   NOT NULL,
+  RoleCode varchar(20) NOT NULL,
   BaseSalary decimal(10,2) DEFAULT NULL,
   PRIMARY KEY (RoleCode)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
--- Data
 INSERT INTO department (DeptCode, DeptName, AssignedHR) VALUES
 ('ADM','Administration',NULL),
-('CSO','Customer Success Operations',123),
+('CSO','Customer Success Operations',103),
 ('DD','Dev Ops',567),
-('HR','Human Resources',NULL),
-('PSO','Pre-Sales Operations',NULL),
-('R&D','Research & Development',NULL);
+('PSO','Pre-Sales Operations',133),
+('R&D','Research & Development',134);
 
 INSERT INTO employee (EmpId, FirstName, LastName, Age, Address, PersonalEmail, Phone, workMail, password, RoleCode, DeptCode, approval_status) VALUES
-(100,'Admin','User',32,'Admin Office, Bangalore','admin@company.com','88888888888',NULL,'Admin@123','ADM','ADM','APPROVED'),
-(101,'Mayank','Polepalli Manohar',22,'123 Maple St, Bangalore','mayank.pm@gmail.com','9876543210',NULL,'Mayank@12345','M2','PSO','UNDEFINED'),
-(102,'Thathva','Bannur Rayappa Gowda',22,'456 Oak Ave, Bangalore','thathva.gowda@gmail.com','9876543211',NULL,NULL,'L3','CSO','DECLINED'),
-(103,'Rudresh','Prakash',29,'789 Pine Rd, Bangalore','rudresh.prakash@gmail.com','9876543212',NULL,'Rudresh@123','HR','CSO','APPROVED'),
-(104,'Rahul','Krishnan Ravindran',26,'321 Elm St, Bangalore','rahul.krishnan@gmail.com','9876543213',NULL,'RahulK@123','SDE-3','PSO','APPROVED'),
-(105,'Sayeed','Unnisa',32,'654 Birch Ln, Bangalore','sayeed.unnisa@gmail.com','9876543214',NULL,'Sayeed@123','SDE-3','CSO','APPROVED'),
-(106,'Abhijeet','Yadav',25,'987 Cedar Dr, Bangalore','abhijeet.yadav@gmail.com','9876543215',NULL,'Abhijeet@123','M2','R&D','UNDEFINED'),
-(107,'Bhuvan','Raju',28,'147 Spruce Way, Bangalore','bhuvan.raju@gmail.com','9876543216',NULL,'Bhuvan@123','M3','PSO','DECLINED'),
-(108,'Abhishek','Kumar',27,'258 Willow Ct, Bangalore','abhishek.kumar@gmail.com','9876543217',NULL,'Abhishek@123','M2','R&D','APPROVED'),
-(109,'Chandan','Eswaraiah',30,'369 Ash Blvd, Bangalore','chandan.eswaraiah@gmail.com','9876543218',NULL,'Chandan@123','SDE-2','PSO','UNDEFINED'),
-(110,'Shresht','Gunashekhar',26,'741 Poplar St, Bangalore','shresht.g@gmail.com','9876543219',NULL,'Shresht@123','L2','PSO','UNDEFINED'),
-(111,'Rahul','Saraswat',29,'852 Fir Ave, Bangalore','rahul.saraswat@gmail.com','9876543220',NULL,'RahulS@123','SDE-1','R&D','DECLINED'),
-(112,'Dhruv','Akshay Kadam',25,'963 Hemlock Rd, Bangalore','dhruv.kadam@gmail.com','9876543221',NULL,'Dhruv@123','SDE-2','CSO','UNDEFINED'),
-(113,'Prem','Singh Sengar',28,'159 Cypress Ln, Bangalore','prem.sengar@gmail.com','9876543222',NULL,'Prem@123','SDE-3','PSO','UNDEFINED'),
-(114,'Mudit','Mohan',27,'357 Magnolia Dr, Bangalore','mudit.mohan@gmail.com','9876543223',NULL,'Mudit@123','SDE-2','PSO','UNDEFINED'),
-(115,'Kirti','Sudha Sahoo',26,'468 Dogwood Way, Bangalore','kirti.sahoo@gmail.com','9876543224',NULL,'Kirti@123','M3','R&D','UNDEFINED'),
-(116,'Sanketha','Billodi Thimanna',29,'579 Redwood Ct, Bangalore','sanketha.billodi@gmail.com','9876543225',NULL,'Sanketha@123','M3','PSO','UNDEFINED'),
-(117,'Ankit','Sreenivasa',28,'680 Sequoia Blvd, Bangalore','ankit.sreenivasa@gmail.com','9876543226',NULL,'Ankit@123','SDE-2','PSO','UNDEFINED'),
-(118,'Shravya','Bheemashankara Rao',30,'791 Palm St, Bangalore','shravya.rao@gmail.com','9876543227',NULL,'Shravya@123','L3','CSO','APPROVED'),
-(119,'Poluru','Vamsi',27,'802 Beech Ave, Bangalore','poluru.vamsi@gmail.com','9876543228',NULL,'Poluru@123','M3','PSO','UNDEFINED'),
-(120,'Shahid','Ahamed',31,'913 Cherry Rd, Bangalore','shahid.ahamed@gmail.com','9876543229',NULL,'Shahid@123','SDE-1','PSO','UNDEFINED'),
-(121,'Subhranil','Das',28,'024 Walnut Ln, Bangalore','subhranil.das@gmail.com','9876543230',NULL,'Subhranil@123','M3','CSO','DECLINED'),
-(122,'Rakshitha','Didaga Nageswara Rao',26,'135 Hickory Dr, Bangalore','rakshitha.rao@gmail.com','9876543231',NULL,'Rakshitha@123','M1','PSO','UNDEFINED'),
-(123,'Charuka','Shree Raja',29,'246 Sycamore Way, Bangalore','charuka.raja@gmail.com','9876543232',NULL,'Charuka@123','L2','R&D','UNDEFINED'),
-(124,'Sagar','Patil',27,'357 Alder Ct, Bangalore','sagar.patil@gmail.com','9876543233',NULL,'Sagar@123','M3','PSO','UNDEFINED'),
-(125,'Priya','Sharma',25,'468 Juniper Blvd, Bangalore','priya.sharma@gmail.com','9876543234',NULL,'Priya@123','SDE-2','CSO','DECLINED'),
-(126,'Vikram','Singh',30,'579 Locust St, Bangalore','vikram.singh@gmail.com','9876543235',NULL,'Vikram@123','L1','R&D','UNDEFINED'),
-(127,'Neha','Reddy',28,'680 Pecan Ave, Bangalore','neha.reddy@gmail.com','9876543236',NULL,'Neha@123','L3','R&D','UNDEFINED'),
-(128,'Arjun','Mehta',26,'791 Chestnut Rd, Bangalore','arjun.mehta@gmail.com','9876543237',NULL,'Arjun@123','L1','PSO','UNDEFINED'),
-(129,'Sneha','Gupta',29,'802 Acacia Ln, Bangalore','sneha.gupta@gmail.com','9876543238',NULL,'Sneha@123','SDE-2','R&D','UNDEFINED'),
-(130,'Karthik','Iyer',27,'913 Yew Dr, Bangalore','karthik.iyer@gmail.com','9876543239',NULL,'Karthik@123','L3','PSO','UNDEFINED'),
-(131,'Hello','World',66,'acbasd','hello@hello.com','1052786559','', 'Hello@123','HR','R&D','DECLINED'),
--- (134, 'blab','blab',...) was an HR in R&D; omitted to ensure one HR per department
-(133,'BRAPT','Q',22,'braptq','braptq@gmail.com','1234567890','', 'Blab@123','HR','PSO','APPROVED'),
-(136,'Rohith','Kumar',23,'Banglaore','rohith@gmail.com','8096635662','', '123456','SDE-1','R&D','APPROVED'),
-(141,'Mayank','User',23,'852 Fir Ave, Bangalore','fhshisback@gmail.com','1234567890','mayank.user@company.com','CGvn4RUm6v','SDE-2','CSO','APPROVED');
+(100,'Admin','User',32,'Admin Office, Bangalore',NULL,'88888888888','admin@company.com','Admin@123','ADM','ADM','APPROVED'),
+(101,'Mayank','Polepalli Manohar',22,'123 Maple St, Bangalore',NULL,'9876543210','mayank.pm@gmail.com','Mayank@12345','M2','PSO','UNDEFINED'),
+(102,'Thathva','Bannur Rayappa Gowda',22,'456 Oak Ave, Bangalore',NULL,'9876543211','thathva.gowda@gmail.com',NULL,'L3','CSO','DECLINED'),
+(103,'Rudresh','Prakash',29,'789 Pine Rd, Bangalore',NULL,'9876543212','rudresh.prakash@gmail.com','Rudresh@123','HR','CSO','APPROVED'),
+(104,'Rahul','Krishnan Ravindran',26,'321 Elm St, Bangalore',NULL,'9876543213','rahul.krishnan@gmail.com','RahulK@123','SDE-3','PSO','APPROVED'),
+(105,'Sayeed','Unnisa',32,'654 Birch Ln, Bangalore',NULL,'9876543214','sayeed.unnisa@gmail.com','Sayeed@123','SDE-3','CSO','APPROVED'),
+(106,'Abhijeet','Yadav',25,'987 Cedar Dr, Bangalore',NULL,'9876543215','abhijeet.yadav@gmail.com','Abhijeet@123','M2','R&D','UNDEFINED'),
+(107,'Bhuvan','Raju',28,'147 Spruce Way, Bangalore',NULL,'9876543216','bhuvan.raju@gmail.com','Bhuvan@123','M3','PSO','DECLINED'),
+(108,'Abhishek','Kumar',27,'258 Willow Ct, Bangalore',NULL,'9876543217','abhishek.kumar@gmail.com','Abhishek@123','M2','R&D','APPROVED'),
+(109,'Chandan','Eswaraiah',30,'369 Ash Blvd, Bangalore',NULL,'9876543218','chandan.eswaraiah@gmail.com','Chandan@123','SDE-2','PSO','UNDEFINED'),
+(110,'Shresht','Gunashekhar',26,'741 Poplar St, Bangalore',NULL,'9876543219','shresht.g@gmail.com','Shresht@123','L2','PSO','UNDEFINED'),
+(111,'Rahul','Saraswat',29,'852 Fir Ave, Bangalore',NULL,'9876543220','rahul.saraswat@gmail.com','RahulS@123','SDE-1','R&D','DECLINED'),
+(112,'Dhruv','Akshay Kadam',25,'963 Hemlock Rd, Bangalore',NULL,'9876543221','dhruv.kadam@gmail.com','Dhruv@123','SDE-2','CSO','UNDEFINED'),
+(113,'Prem','Singh Sengar',28,'159 Cypress Ln, Bangalore',NULL,'9876543222','prem.sengar@gmail.com','Prem@123','SDE-3','PSO','UNDEFINED'),
+(114,'Mudit','Mohan',27,'357 Magnolia Dr, Bangalore',NULL,'9876543223','mudit.mohan@gmail.com','Mudit@123','SDE-2','PSO','UNDEFINED'),
+(115,'Kirti','Sudha Sahoo',26,'468 Dogwood Way, Bangalore',NULL,'9876543224','kirti.sahoo@gmail.com','Kirti@123','M3','R&D','UNDEFINED'),
+(116,'Sanketha','Billodi Thimanna',29,'579 Redwood Ct, Bangalore',NULL,'9876543225','sanketha.billodi@gmail.com','Sanketha@123','M3','PSO','UNDEFINED'),
+(117,'Ankit','Sreenivasa',28,'680 Sequoia Blvd, Bangalore',NULL,'9876543226','ankit.sreenivasa@gmail.com','Ankit@123','SDE-2','PSO','UNDEFINED'),
+(118,'Shravya','Bheemashankara Rao',30,'791 Palm St, Bangalore',NULL,'9876543227','shravya.rao@gmail.com','Shravya@123','L3','CSO','APPROVED'),
+(119,'Poluru','Vamsi',27,'802 Beech Ave, Bangalore',NULL,'9876543228','poluru.vamsi@gmail.com','Poluru@123','M3','PSO','UNDEFINED'),
+(120,'Shahid','Ahamed',31,'913 Cherry Rd, Bangalore',NULL,'9876543229','shahid.ahamed@gmail.com','Shahid@123','SDE-1','PSO','UNDEFINED'),
+(121,'Subhranil','Das',28,'024 Walnut Ln, Bangalore',NULL,'9876543230','subhranil.das@gmail.com','Subhranil@123','M3','CSO','DECLINED'),
+(122,'Rakshitha','Didaga Nageswara Rao',26,'135 Hickory Dr, Bangalore',NULL,'9876543231','rakshitha.rao@gmail.com','Rakshitha@123','M1','PSO','UNDEFINED'),
+(123,'Charuka','Shree Raja',29,'246 Sycamore Way, Bangalore',NULL,'9876543232','charuka.raja@gmail.com','Charuka@123','L2','R&D','UNDEFINED'),
+(124,'Sagar','Patil',27,'357 Alder Ct, Bangalore',NULL,'9876543233','sagar.patil@gmail.com','Sagar@123','M3','PSO','UNDEFINED'),
+(125,'Priya','Sharma',25,'468 Juniper Blvd, Bangalore',NULL,'9876543234','priya.sharma@gmail.com','Priya@123','SDE-2','CSO','DECLINED'),
+(126,'Vikram','Singh',30,'579 Locust St, Bangalore',NULL,'9876543235','vikram.singh@gmail.com','Vikram@123','L1','R&D','UNDEFINED'),
+(127,'Neha','Reddy',28,'680 Pecan Ave, Bangalore',NULL,'9876543236','neha.reddy@gmail.com','Neha@123','L3','R&D','UNDEFINED'),
+(128,'Arjun','Mehta',26,'791 Chestnut Rd, Bangalore',NULL,'9876543237','arjun.mehta@gmail.com','Arjun@123','L1','PSO','UNDEFINED'),
+(129,'Sneha','Gupta',29,'802 Acacia Ln, Bangalore',NULL,'9876543238','sneha.gupta@gmail.com','Sneha@123','SDE-2','R&D','UNDEFINED'),
+(130,'Karthik','Iyer',27,'913 Yew Dr, Bangalore',NULL,'9876543239','karthik.iyer@gmail.com','Karthik@123','L3','PSO','UNDEFINED'),
+(131,'Hello','World',66,'acbasd',NULL,'1052786559','hello@hello.com','Hello@123','HR','R&D','DECLINED'),
+(133,'BRAPT','Q',22,'braptq',NULL,'1234567890','braptq@gmail.com','Blab@123','HR','PSO','APPROVED'),
+(134,'blab','blab',23,'qwertyuiop',NULL,'1234567890','thathvabr18@gmail.com','Qwerty@123','HR','R&D','APPROVED'),
+(136,'Rohith','Kumar',23,'Banglaore',NULL,'8096635662',NULL,'123456','SDE-1','R&D','APPROVED'),
+(141,'Mayank','User',23,'852 Fir Ave, Bangalore',NULL,'1234567890','fhshisback@gmail.com','CGvn4RUm6v','SDE-2','CSO','APPROVED');
 
 INSERT INTO payroll (EmpId, DeptCode, Tax, Allowances, Incentive, CTC) VALUES
 (101,NULL,1000.00,2000.00,500.00,1500.00),
