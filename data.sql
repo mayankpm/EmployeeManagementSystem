@@ -135,3 +135,8 @@ INSERT INTO salary (RoleCode, BaseSalary) VALUES
 ('SDE-1',14.00),
 ('SDE-2',18.00),
 ('SDE-3',22.00);
+
+UPDATE payroll p
+JOIN employee e ON p.EmpId = e.EmpId
+SET p.DeptCode = e.DeptCode
+WHERE p.DeptCode IS NULL;
