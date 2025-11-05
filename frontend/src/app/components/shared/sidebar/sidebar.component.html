@@ -1,0 +1,29 @@
+<div class="sidebar">
+    <div class="logo">
+        <h1>HR Panel</h1>
+        <small *ngIf="currentUser?.deptCode" class="department-label">
+           <b> Welcome {{ currentUser.firstName }} </b>
+        </small>
+        <br>
+        <small *ngIf="currentUser?.deptCode" class="department-label">
+            <i>{{ currentUser.deptCode }} Department</i>
+        </small>
+    </div>
+    
+    <div class="nav-links">
+        <a routerLink="/hr/dashboard" 
+           [class.active]="isActive('dashboard')"
+           (click)="activeRoute = 'dashboard'">
+            Employees
+        </a>
+        <a href="#" class="disabled">Payroll Management</a>
+        <a routerLink="/hr/approvals"
+           [class.active]="isActive('approvals')"
+           (click)="activeRoute = 'approvals'">
+            Approvals
+        </a>
+    </div>
+    
+
+    <a (click)="logout()" class="logout-sidebar-btn">Logout</a>
+</div>
