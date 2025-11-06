@@ -1,0 +1,71 @@
+/* Admin employee card aesthetics (reuse HR styles) */
+.avatar-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #eef2f6;
+  color: #55646e;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+.role-badge {
+  background-color: #e7f0ff;
+  color: #1d4ed8;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-weight: 600;
+  font-size: 12px;
+}
+.admin-emp-card {
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.admin-emp-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+}
+
+/* Sidebar styles */
+.admin-sidenav .list-group-item {
+  border: none;
+  border-left: 6px solid transparent;
+  padding: 12px 16px;
+  color: #555;
+}
+.admin-sidenav .list-group-item.active {
+  background-color: #f1f3f5;
+  color: #000;
+  border-left-color: #343a40;
+  font-weight: 600;
+}
+
+/* Modal styles */
+.admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+.admin-modal {
+  width: 100%;
+  max-width: 640px;
+  background: #fff;
+  border-radius: .5rem;
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+  overflow: hidden;
+}
+.admin-modal-header, .admin-modal-footer {
+  padding: .75rem 1rem;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.admin-modal-body { padding: 1rem; }
+/* styles for admin dashboard */
+
+

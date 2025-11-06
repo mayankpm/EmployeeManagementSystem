@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
   <div class="container">
     <!-- Brand -->
-    <a class="navbar-brand fw-bold" routerLink="/employee/dashboard">
+    <a class="navbar-brand fw-bold" [routerLink]="getHomeLink()">
       <i class="fas fa-users me-2"></i>Employee Portal
     </a>
 
@@ -14,16 +14,16 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/employee/dashboard" routerLinkActive="active">
+          <a class="nav-link" [routerLink]="getHomeLink()" routerLinkActive="active">
             <i class="fas fa-tachometer-alt me-1"></i>Dashboard
           </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" *ngIf="isEmployee()">
           <a class="nav-link" routerLink="/employee/profile" routerLinkActive="active">
             <i class="fas fa-user me-1"></i>Profile
           </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" *ngIf="isEmployee()">
           <a class="nav-link" routerLink="/employee/payroll" routerLinkActive="active">
             <i class="fas fa-file-invoice-dollar me-1"></i>Payroll
           </a>

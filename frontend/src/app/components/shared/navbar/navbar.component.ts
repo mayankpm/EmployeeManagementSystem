@@ -40,4 +40,16 @@ export class NavbarComponent implements OnInit {
     if (role === 'HR') return 'HR Manager';
     return 'Employee';
   }
+
+  getHomeLink(): string {
+    const role = this.currentUser?.roleCode?.toUpperCase();
+    if (role?.startsWith('ADM')) return '/admin/dashboard';
+    if (role === 'HR') return '/hr/dashboard';
+    return '/employee/dashboard';
+  }
+
+  isEmployee(): boolean {
+    const role = this.currentUser?.roleCode?.toUpperCase();
+    return !(role?.startsWith('ADM') || role === 'HR');
+  }
 }

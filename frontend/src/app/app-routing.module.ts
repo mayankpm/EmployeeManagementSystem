@@ -6,6 +6,8 @@ import { EmployeeDashboardComponent } from './components/employee/employee-dashb
 import { EmployeeProfileComponent } from './components/employee/employee-profile/employee-profile.component';
 import { EmployeePayrollComponent } from './components/employee/employee-payroll/employee-payroll.component';
 import { AuthGuard } from './guards/auth.guard';
+import { AdminDashboardComponent } from './components/admin/admin-dashboard/admin-dashboard.component';
+import { HrDashboardComponent } from './components/hr/hr-dashboard/hr-dashboard.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -15,6 +17,18 @@ const routes: Routes = [
     path: 'employee/dashboard', 
     component: EmployeeDashboardComponent,
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'admin/dashboard',
+    component: AdminDashboardComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN', 'ADM', 'ADMINISTRATOR'] }
+  },
+  {
+    path: 'hr/dashboard',
+    component: HrDashboardComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['HR'] }
   },
   { 
     path: 'employee/profile', 

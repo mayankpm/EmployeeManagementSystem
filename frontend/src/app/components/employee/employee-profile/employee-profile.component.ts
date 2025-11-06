@@ -85,9 +85,17 @@ export class EmployeeProfileComponent implements OnInit {
           this.loading = false;
           if (response.success) {
             this.successMessage = response.message || 'Profile updated successfully!';
-            // Redirect to dashboard after successful update
+            // Redirect to role-based home after successful update
             setTimeout(() => {
-              this.router.navigate(['/employee/dashboard']);
+              const userDataRaw = sessionStorage.getItem('auth-user');
+              const roleCode = userDataRaw ? (JSON.parse(userDataRaw).roleCode || '').toString().toUpperCase() : '';
+              if (roleCode.startsWith('ADM')) {
+                this.router.navigate(['/admin/dashboard']);
+              } else if (roleCode === 'HR') {
+                this.router.navigate(['/hr/dashboard']);
+              } else {
+                this.router.navigate(['/employee/dashboard']);
+              }
             }, 1500); // Small delay to show success message
           } else {
             this.errorMessage = response.message;

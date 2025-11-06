@@ -1,0 +1,229 @@
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="mb-0">HR Panel</h3>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-md-3 mb-3 mb-md-0" *ngIf="showSidebar">
+      <div class="list-group hr-sidenav">
+        <a href="#" class="list-group-item list-group-item-action" [class.active]="isTab('employees')" (click)="setTab('employees'); $event.preventDefault()">Employees</a>
+        <a href="#" class="list-group-item list-group-item-action" [class.active]="isTab('payroll')" (click)="setTab('payroll'); $event.preventDefault()">Payroll Management</a>
+        <a href="#" class="list-group-item list-group-item-action" [class.active]="isTab('approvals')" (click)="setTab('approvals'); $event.preventDefault()">Approvals</a>
+      </div>
+    </div>
+
+    <div class="col-12" [class.col-md-9]="showSidebar" [class.col-md-12]="!showSidebar">
+      <div *ngIf="loading" class="alert alert-info">Loading...</div>
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+      <!-- Employees Tab -->
+      <ng-container *ngIf="data && isTab('employees')">
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <div class="fw-semibold text-muted">Department</div>
+                <div class="fs-5">{{ data.hrDepartment }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <div class="fw-semibold text-muted">Total Employees</div>
+                <div class="fs-5">{{ data.totalEmployees }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <div class="fw-semibold text-muted">Regular/Staff Count</div>
+                <div class="fs-5">{{ data.employeeCount }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-header">
+            Employees in {{ data.hrDepartment }}
+          </div>
+          <div class="card-body">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 g-3">
+              <div class="col" *ngFor="let e of data.employees">
+                <div class="card h-100 border-0 shadow-sm hr-emp-card">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                      <div class="avatar-circle me-3">{{ getInitials(e) }}</div>
+                      <div>
+                        <div class="fw-semibold fs-5 lh-sm">{{ e.firstName }} {{ e.lastName }}</div>
+                        <div class="text-muted small">{{ e.deptCode || data.hrDepartment }}</div>
+                      </div>
+                    </div>
+
+                    <div class="row g-2 mb-2 small">
+                      <div class="col-5 text-muted">ID:</div>
+                      <div class="col-7">{{ e.empId }}</div>
+
+                      <div class="col-5 text-muted">Phone:</div>
+                      <div class="col-7">{{ e.phone || '—' }}</div>
+
+                      <div class="col-5 text-muted">Age:</div>
+                      <div class="col-7">{{ e.age || '—' }}</div>
+
+                      <div class="col-5 text-muted">Role:</div>
+                      <div class="col-7">
+                        <span class="role-badge">{{ e.roleCode || '—' }}</span>
+                      </div>
+
+                      <div class="col-5 text-muted">Address:</div>
+                      <div class="col-7 text-truncate" title="{{ e.address }}">{{ e.address || '—' }}</div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                      <button type="button" class="btn btn-light btn-sm" (click)="openEdit(e)">Edit</button>
+                      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="openPayroll(e)">Payroll</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Payroll Tab -->
+      <ng-container *ngIf="isTab('payroll')">
+        <div *ngIf="payrollListLoading" class="alert alert-info">Loading payrolls...</div>
+        <div *ngIf="!payrollListLoading && payrollRows">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>Emp ID</th>
+                  <th>Name</th>
+                  <th class="text-end">Net Salary</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of payrollRows">
+                  <td>{{ r.empId }}</td>
+                  <td>{{ r.name }}</td>
+                  <td class="text-end">{{ formatCurrency(r.net) }}</td>
+                  <td>{{ r.generatedDate }}</td>
+                  <td class="text-end">
+                    <button class="btn btn-primary btn-sm" (click)="openPayroll({ empId: r.empId, firstName: r.name.split(' ')[0], lastName: r.name.split(' ').slice(1).join(' ') })">Download Slip</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Approvals Tab Placeholder -->
+      <ng-container *ngIf="isTab('approvals')">
+        <div *ngIf="approvalsLoading" class="alert alert-info">Loading approvals...</div>
+        <div *ngIf="!approvalsLoading">
+          <div class="table-responsive" *ngIf="approvals && approvals.length; else noPending">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>Emp ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Department</th>
+                  <th>Role</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let e of approvals">
+                  <td>{{ e.empId }}</td>
+                  <td>{{ e.firstName }} {{ e.lastName }}</td>
+                  <td>{{ e.personalEmail || e.workMail }}</td>
+                  <td>{{ e.deptCode }}</td>
+                  <td>{{ e.roleCode }}</td>
+                  <td class="text-end">
+                    <button class="btn btn-success btn-sm me-2" (click)="approve(e.empId)">Approve</button>
+                    <button class="btn btn-danger btn-sm" (click)="decline(e.empId)">Decline</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ng-template #noPending>
+            <div class="alert alert-secondary">No pending approvals.</div>
+          </ng-template>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+  <!-- Edit Modal -->
+  <div class="hr-modal-backdrop" *ngIf="editOpen">
+    <div class="hr-modal">
+      <div class="hr-modal-header">
+        <div class="fw-semibold">Edit Employee</div>
+        <button class="btn-close" (click)="closeEdit()"></button>
+      </div>
+      <div class="hr-modal-body">
+        <div class="mb-2">
+          <label class="form-label">Phone</label>
+          <input type="text" class="form-control" [(ngModel)]="editModel.phone">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Age</label>
+          <input type="number" class="form-control" [(ngModel)]="editModel.age">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Address</label>
+          <textarea rows="2" class="form-control" [(ngModel)]="editModel.address"></textarea>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Role Code</label>
+          <input type="text" class="form-control" [(ngModel)]="editModel.roleCode" placeholder="e.g., L3, SDE2">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Personal Email</label>
+          <input type="email" class="form-control" [(ngModel)]="editModel.personalEmail">
+        </div>
+      </div>
+      <div class="hr-modal-footer">
+        <button class="btn btn-light" (click)="closeEdit()" [disabled]="editLoading">Cancel</button>
+        <button class="btn btn-primary" (click)="saveEdit()" [disabled]="editLoading">
+          <span *ngIf="editLoading" class="spinner-border spinner-border-sm me-2"></span>
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payroll Modal -->
+  <div class="hr-modal-backdrop" *ngIf="payrollOpen">
+    <div class="hr-modal">
+      <div class="hr-modal-header">
+        <div class="fw-semibold">Payroll - {{ payrollTarget?.firstName }} {{ payrollTarget?.lastName }}</div>
+        <button class="btn-close" (click)="closePayroll()"></button>
+      </div>
+      <div class="hr-modal-body">
+        <div *ngIf="payrollLoading" class="alert alert-info">Loading...</div>
+        <div *ngIf="!payrollLoading && payrollData">
+          <div class="mb-2 text-muted small">Emp ID: {{ payrollData.employee?.empId }}</div>
+          <div class="list-group">
+            <div class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let p of payrollData.payrolls">
+              <div class="text-muted small">{{ p.month }}</div>
+              <div class="fw-semibold">Net: {{ p.ctc }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hr-modal-footer">
+        <button class="btn btn-light" (click)="closePayroll()" [disabled]="payrollLoading">Close</button>
+        <button class="btn btn-primary" (click)="downloadSlip()" [disabled]="payrollLoading">Download Salary Slip</button>
+      </div>
+    </div>
+  </div>
+</div>
+

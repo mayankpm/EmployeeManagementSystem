@@ -264,7 +264,6 @@
                     <th>Emp ID</th>
                     <th>Name</th>
                     <th>Net Salary</th>
-                    <th>Generated Date</th>
                     <th>Actions</th>
                 </tr>
             </thead>

@@ -1,0 +1,241 @@
+import { Component, OnInit } from '@angular/core';
+import { HrService } from '../../../services/hr.service';
+
+@Component({
+  selector: 'app-hr-dashboard',
+  standalone: false,
+  templateUrl: './hr-dashboard.component.html',
+  styleUrls: ['./hr-dashboard.component.css']
+})
+export class HrDashboardComponent implements OnInit {
+  loading = false;
+  errorMessage = '';
+  data: any = null;
+  activeTab: 'employees' | 'payroll' | 'approvals' = 'employees';
+  showSidebar = true;
+  editOpen = false;
+  editLoading = false;
+  editTarget: any = null;
+  editModel: any = { phone: '', age: '', address: '', roleCode: '', personalEmail: '' };
+
+  payrollOpen = false;
+  payrollLoading = false;
+  payrollTarget: any = null;
+  payrollData: any = null;
+  payrollListLoading = false;
+  payrollRows: Array<{ empId: number; name: string; net: number; generatedDate: string }>|null = null;
+  approvalsLoading = false;
+  approvals: any[] | null = null;
+
+  constructor(private hrService: HrService) {}
+
+  ngOnInit(): void {
+    this.fetchDashboard();
+  }
+
+  fetchDashboard(): void {
+    this.loading = true;
+    this.errorMessage = '';
+    this.hrService.getDashboard().subscribe({
+      next: (res) => {
+        this.loading = false;
+        this.data = res;
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorMessage = err.error?.message || 'Failed to load HR dashboard';
+      }
+    });
+  }
+
+  getInitials(e: any): string {
+    const first = (e?.firstName || '').trim();
+    const last = (e?.lastName || '').trim();
+    const a = first ? first.charAt(0) : '';
+    const b = last ? last.charAt(0) : '';
+    return (a + b).toUpperCase() || 'NA';
+  }
+
+  setTab(tab: 'employees' | 'payroll' | 'approvals'): void {
+    this.activeTab = tab;
+    if (tab === 'payroll' && !this.payrollRows) {
+      this.loadPayrollOverview();
+    }
+    if (tab === 'approvals') {
+      this.loadApprovals();
+    }
+  }
+
+  isTab(tab: 'employees' | 'payroll' | 'approvals'): boolean {
+    return this.activeTab === tab;
+  }
+
+  private loadPayrollOverview(): void {
+    this.payrollListLoading = true;
+    this.hrService.getPayrollOverview().subscribe({
+      next: (res) => {
+        // res.employees and res.payrolls expected
+        const employees = res.employees || [];
+        const payrolls = res.payrolls || [];
+        const latestByEmp = new Map<number, any>();
+        payrolls.forEach((p: any) => {
+          const curr = latestByEmp.get(p.empId);
+          if (!curr || new Date(p.generatedDate || p.month) < new Date(p.generatedDate || p.month)) {
+            // This simple condition is placeholder; we'll store by most recent using generatedDate if present
+          }
+          latestByEmp.set(p.empId, p);
+        });
+        this.payrollRows = employees.map((e: any) => {
+          const p = latestByEmp.get(e.empId);
+          return {
+            empId: e.empId,
+            name: `${e.firstName} ${e.lastName}`.trim(),
+            net: p?.ctc ?? 0,
+            generatedDate: p?.generatedDate || p?.month || ''
+          };
+        });
+        this.payrollListLoading = false;
+      },
+      error: () => {
+        this.payrollListLoading = false;
+      }
+    });
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount || 0);
+  }
+
+  private loadApprovals(): void {
+    this.approvalsLoading = true;
+    this.hrService.getApprovals().subscribe({
+      next: (res) => {
+        // As a safety net, filter by current HR department from dashboard data if present
+        const dept = this.data?.hrDepartment;
+        this.approvals = Array.isArray(res) ? (
+          dept ? res.filter((e: any) => (e?.deptCode || '').toString().trim().toLowerCase() === (dept || '').toString().trim().toLowerCase()) : res
+        ) : [];
+        this.approvalsLoading = false;
+      },
+      error: () => { this.approvalsLoading = false; }
+    });
+  }
+
+  approve(empId: number): void {
+    this.hrService.approveEmployee(empId).subscribe({
+      next: () => {
+        if (this.approvals) this.approvals = this.approvals.filter(a => a.empId !== empId);
+      }
+    });
+  }
+
+  decline(empId: number): void {
+    this.hrService.declineEmployee(empId).subscribe({
+      next: () => {
+        if (this.approvals) this.approvals = this.approvals.filter(a => a.empId !== empId);
+      }
+    });
+  }
+
+  toggleSidebar(): void {
+    this.showSidebar = !this.showSidebar;
+  }
+
+  openEdit(e: any): void {
+    this.editTarget = e;
+    this.editModel = {
+      phone: e.phone || '',
+      age: e.age || '',
+      address: e.address || '',
+      roleCode: e.roleCode || '',
+      personalEmail: e.personalEmail || e.workMail || ''
+    };
+    this.editOpen = true;
+  }
+
+  closeEdit(): void {
+    if (this.editLoading) return;
+    this.editOpen = false;
+  }
+
+  saveEdit(): void {
+    if (!this.editTarget) return;
+    this.editLoading = true;
+    this.hrService.updateEmployee(this.editTarget.empId, this.editModel).subscribe({
+      next: (res) => {
+        this.editLoading = false;
+        this.editOpen = false;
+        // Update local data to reflect changes immediately
+        this.editTarget.phone = this.editModel.phone;
+        this.editTarget.age = this.editModel.age;
+        this.editTarget.address = this.editModel.address;
+        this.editTarget.roleCode = this.editModel.roleCode;
+        this.editTarget.personalEmail = this.editModel.personalEmail;
+      },
+      error: () => {
+        this.editLoading = false;
+      }
+    });
+  }
+
+  openPayroll(e: any): void {
+    this.payrollTarget = e;
+    this.payrollOpen = true;
+    this.payrollLoading = true;
+    this.payrollData = null;
+    this.hrService.getEmployeePayroll(e.empId).subscribe({
+      next: (res) => {
+        this.payrollLoading = false;
+        this.payrollData = res;
+      },
+      error: () => {
+        this.payrollLoading = false;
+      }
+    });
+  }
+
+  closePayroll(): void {
+    if (this.payrollLoading) return;
+    this.payrollOpen = false;
+  }
+
+  downloadSlip(): void {
+    if (!this.payrollTarget) return;
+    this.hrService.downloadSalarySlip(this.payrollTarget.empId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `salary-slip-${this.payrollTarget.empId}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        // Refresh payroll list after download to reflect any server-side updates
+        this.refreshPayroll();
+      }
+    });
+  }
+
+  generatePayroll(): void {
+    if (!this.payrollTarget) return;
+    this.payrollLoading = true;
+    this.hrService.generatePayroll(this.payrollTarget.empId).subscribe({
+      next: () => this.refreshPayroll(),
+      error: () => this.payrollLoading = false
+    });
+  }
+
+  private refreshPayroll(): void {
+    if (!this.payrollTarget) return;
+    this.hrService.getEmployeePayroll(this.payrollTarget.empId).subscribe({
+      next: (res) => {
+        this.payrollLoading = false;
+        this.payrollData = res;
+      },
+      error: () => {
+        this.payrollLoading = false;
+      }
+    });
+  }
+}
+
+

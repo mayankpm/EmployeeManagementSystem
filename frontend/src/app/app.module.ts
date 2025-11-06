@@ -22,6 +22,8 @@ import { NavbarComponent } from './components/shared/navbar/navbar.component';
 
 // Interceptors
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { AdminDashboardComponent } from './components/admin/admin-dashboard/admin-dashboard.component';
+import { HrDashboardComponent } from './components/hr/hr-dashboard/hr-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +33,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     EmployeeDashboardComponent,
     EmployeeProfileComponent,
     EmployeePayrollComponent,
-    NavbarComponent
+    NavbarComponent,
+    AdminDashboardComponent,
+    HrDashboardComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,83 @@
+/* styles for hr dashboard */
+
+.avatar-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #eef2f6;
+  color: #55646e;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.role-badge {
+  background-color: #dcfce7; /* light green */
+  color: #059669; /* green */
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.hr-emp-card {
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.hr-emp-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+}
+
+.hr-sidenav .list-group-item {
+  border: none;
+  border-left: 6px solid transparent;
+  padding: 12px 16px;
+  color: #555;
+}
+.hr-sidenav .list-group-item.active {
+  background-color: #f1f3f5;
+  color: #000;
+  border-left-color: #343a40;
+  font-weight: 600;
+}
+
+/* Sidebar container - make it stand out and sticky */
+.hr-sidenav {
+  background-color: #ffffff;
+  border: 1px solid rgba(0,0,0,.05);
+  border-radius: .5rem;
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,.04);
+  position: sticky;
+  top: 1rem;
+}
+
+.hr-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+.hr-modal {
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: .5rem;
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+  overflow: hidden;
+}
+.hr-modal-header, .hr-modal-footer {
+  padding: .75rem 1rem;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.hr-modal-body {
+  padding: 1rem;
+}
+
+

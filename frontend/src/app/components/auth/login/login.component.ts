@@ -27,7 +27,9 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/employee/dashboard']);
+      const userDataRaw = sessionStorage.getItem('auth-user');
+      const roleCode = userDataRaw ? (JSON.parse(userDataRaw).roleCode || '') : '';
+      this.redirectBasedOnRole(roleCode);
     }
   }
 
