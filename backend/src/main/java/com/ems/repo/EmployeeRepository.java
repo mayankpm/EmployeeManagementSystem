@@ -17,6 +17,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     List<Employee> findByApprovalStatus(String approvalStatus);
     
     // NEW METHODS NEEDED FOR LOGIN:
+    Employee findByWorkMail(String workMail);
     
     // Method 1: Find by workMail and password
     @Query("SELECT e FROM Employee e WHERE e.workMail = :email AND e.password = :password")

@@ -1,0 +1,58 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+  <div class="container">
+    <!-- Brand -->
+    <a class="navbar-brand fw-bold" routerLink="/employee/dashboard">
+      <i class="fas fa-users me-2"></i>Employee Portal
+    </a>
+
+    <!-- Mobile Toggle -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navigation Links -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/employee/dashboard" routerLinkActive="active">
+            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/employee/profile" routerLinkActive="active">
+            <i class="fas fa-user me-1"></i>Profile
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/employee/payroll" routerLinkActive="active">
+            <i class="fas fa-file-invoice-dollar me-1"></i>Payroll
+          </a>
+        </li>
+      </ul>
+
+      <!-- User Info & Logout -->
+      <div class="navbar-nav ms-auto">
+        <div class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="fas fa-user-circle me-1"></i>
+            {{ currentUser?.firstName }} 
+            <small class="badge bg-light text-dark ms-1">{{ getUserRoleDisplay() }}</small>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <a class="dropdown-item" routerLink="/employee/profile">
+                <i class="fas fa-user-edit me-2"></i>Edit Profile
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item text-danger" href="#" (click)="logout(); $event.preventDefault()">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

@@ -1,146 +1,170 @@
 package com.ems.controller;
 
+import com.ems.dto.ApiResponse;
+import com.ems.dto.EmployeeDashboardResponse;
+import com.ems.dto.EmployeeSearchResultDTO;
+import com.ems.dto.SearchRequest;
 import com.ems.model.Employee;
 import com.ems.repo.EmployeeRepository;
+import com.ems.config.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
-@Controller
+@RestController
+@RequestMapping("/api/employee")
 public class EmployeeController {
 
     @Autowired
     private EmployeeRepository employeeRepo;
 
+    @Autowired
+    private JwtUtils jwtUtils;
 
-
-
- // EMPLOYEE DASHBOARD
-    
-    @GetMapping("/employee/dashboard")
-    public String employeeDashboard(Model model,
-                                  @RequestParam(value = "empId", required = false) Integer empId,
-                                  @RequestParam(value = "success", required = false) String success) {
-
-        if (empId == null) {
-            // Redirect to login or show an error page if someone tries to access without empId
-            return "redirect:/login";
-        }
-
-        Employee employee = employeeRepo.findById(empId).orElse(null);
-        if (employee == null) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("employee", employee);
-
-        if (success != null) {
-            model.addAttribute("success", success);
-        }
-
-        return "employee-dashboard";
-    }
-
- 
-    // EMPLOYEE PROFILE EDIT
- 
-    @GetMapping("/employee/edit-profile")
-    public String showEditProfileForm(@RequestParam("empId") int empId, Model model) {
-        Employee employee = employeeRepo.findById(empId).orElse(null);
-        if (employee == null) {
-            return "redirect:/login";
-        }
-        model.addAttribute("employee", employee);
-        return "edit-employee-profile";
-    }
- 
-    @PostMapping("/employee/update-profile")
-    public String updateEmployeeProfile(@ModelAttribute Employee employee,
-                                      @RequestParam("empId") int empId,
-                                      Model model) {
+    // EMPLOYEE DASHBOARD
+    @GetMapping("/dashboard")
+    public ResponseEntity<?> employeeDashboard(@RequestHeader("Authorization") String token) {
         try {
+            int empId = jwtUtils.extractEmpId(token.substring(7));
+            Employee employee = employeeRepo.findById(empId).orElse(null);
+            
+            if (employee == null) {
+                return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Employee not found"));
+            }
+
+            EmployeeDashboardResponse response = new EmployeeDashboardResponse();
+            response.setEmployee(employee);
+            response.setSuccess("Dashboard loaded successfully");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Error loading dashboard: " + e.getMessage()));
+        }
+    }
+
+    // GET EMPLOYEE PROFILE
+    @GetMapping("/profile")
+    public ResponseEntity<?> getEmployeeProfile(@RequestHeader("Authorization") String token) {
+        try {
+            int empId = jwtUtils.extractEmpId(token.substring(7));
+            Employee employee = employeeRepo.findById(empId).orElse(null);
+            
+            if (employee == null) {
+                return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Employee not found"));
+            }
+
+            return ResponseEntity.ok(employee);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Error fetching profile: " + e.getMessage()));
+        }
+    }
+
+    // UPDATE EMPLOYEE PROFILE
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateEmployeeProfile(@RequestHeader("Authorization") String token, 
+                                                 @RequestBody Employee employeeUpdates) {
+        try {
+            int empId = jwtUtils.extractEmpId(token.substring(7));
             Employee existingEmployee = employeeRepo.findById(empId).orElse(null);
+            
             if (existingEmployee == null) {
-                return "redirect:/login";
+                return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Employee not found"));
             }
- 
+
             // Check if email is already taken by another employee
-            Employee emailCheck = employeeRepo.findByPersonalEmail(employee.getPersonalEmail());
+            Employee emailCheck = employeeRepo.findByPersonalEmail(employeeUpdates.getPersonalEmail());
             if (emailCheck != null && emailCheck.getEmpId() != empId) {
-                model.addAttribute("error", "Email already registered by another employee!");
-                model.addAttribute("employee", existingEmployee);
-                return "edit-employee-profile";
+                return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Email already registered by another employee!"));
             }
- 
+
             // Update only allowed fields (phone, email, address, password)
-            existingEmployee.setPersonalEmail(employee.getPersonalEmail());
-            existingEmployee.setPhone(employee.getPhone());
-            existingEmployee.setAddress(employee.getAddress());
+            existingEmployee.setPersonalEmail(employeeUpdates.getPersonalEmail());
+            existingEmployee.setPhone(employeeUpdates.getPhone());
+            existingEmployee.setAddress(employeeUpdates.getAddress());
             
             // Update password only if provided (not empty)
-            if (employee.getPassword() != null && !employee.getPassword().trim().isEmpty()) {
-                existingEmployee.setPassword(employee.getPassword());
+            if (employeeUpdates.getPassword() != null && !employeeUpdates.getPassword().trim().isEmpty()) {
+                existingEmployee.setPassword(employeeUpdates.getPassword());
             }
- 
+
             // Save to database
-            employeeRepo.save(existingEmployee);
+            Employee updatedEmployee = employeeRepo.save(existingEmployee);
             
-            return "redirect:/employee/dashboard?empId=" + empId + "&success=Profile updated successfully";
-            
+            return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", updatedEmployee));
+
         } catch (Exception e) {
-            model.addAttribute("error", "Error updating profile: " + e.getMessage());
-            Employee existingEmployee = employeeRepo.findById(empId).orElse(null);
-            model.addAttribute("employee", existingEmployee);
-            return "edit-employee-profile";
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Error updating profile: " + e.getMessage()));
         }
     }
- 
-    // EMPLOYEE SEARCH FUNCTIONALITY 
-    @GetMapping("/employee/search")
-    public String searchEmployees(@RequestParam("empId") int empId,
-                                @RequestParam("query") String query,
-                                Model model) {
+
+    // EMPLOYEE SEARCH FUNCTIONALITY - UPDATED VERSION
+ // EMPLOYEE SEARCH FUNCTIONALITY - UPDATED VERSION
+    @PostMapping("/search")
+    public ResponseEntity<?> searchEmployees(@RequestHeader("Authorization") String token,
+                                           @RequestBody SearchRequest searchRequest) {
         try {
-            Employee currentEmployee = employeeRepo.findById(empId).orElse(null);
+            int currentEmpId = jwtUtils.extractEmpId(token.substring(7));
+            Employee currentEmployee = employeeRepo.findById(currentEmpId).orElse(null);
+            
             if (currentEmployee == null) {
-                return "redirect:/login";
+                return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Employee not found"));
             }
             
-            List<Employee> searchResults;
+            List<EmployeeSearchResultDTO> searchResults;
+            String query = searchRequest.getQuery();
             
             if (query == null || query.trim().isEmpty()) {
-                // If no query, return all employees (excluding current user)
+                // If no query, return all employees (excluding current user) with only required fields
                 searchResults = employeeRepo.findAll().stream()
-                    .filter(emp -> emp.getEmpId() != empId)
+                    .filter(emp -> emp.getEmpId() != currentEmpId)
+                    .map(this::convertToSearchResultDTO)
                     .collect(Collectors.toList());
             } else {
-                // Search by name, email, or department
+                // Search by name or department only
                 searchResults = employeeRepo.findAll().stream()
-                    .filter(emp -> emp.getEmpId() != empId &&
+                    .filter(emp -> emp.getEmpId() != currentEmpId &&
                         (emp.getFirstName().toLowerCase().contains(query.toLowerCase()) ||
                          emp.getLastName().toLowerCase().contains(query.toLowerCase()) ||
                          (emp.getFirstName() + " " + emp.getLastName()).toLowerCase().contains(query.toLowerCase()) ||
-                         emp.getPersonalEmail().toLowerCase().contains(query.toLowerCase()) ||
                          (emp.getDeptCode() != null && emp.getDeptCode().toLowerCase().contains(query.toLowerCase()))))
+                    .map(this::convertToSearchResultDTO)
                     .collect(Collectors.toList());
             }
             
-            model.addAttribute("employee", currentEmployee);
-            model.addAttribute("results", searchResults);
-            model.addAttribute("searchQuery", query);
-            
-            return "employee-dashboard";
-            
+            EmployeeDashboardResponse response = new EmployeeDashboardResponse();
+            response.setEmployee(currentEmployee);
+            response.setSearchResults(searchResults); // Now this accepts List<EmployeeSearchResultDTO>
+            response.setSearchQuery(query);
+
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
-            Employee currentEmployee = employeeRepo.findById(empId).orElse(null);
-            model.addAttribute("employee", currentEmployee);
-            model.addAttribute("error", "Error searching employees: " + e.getMessage());
-            return "employee-dashboard";
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Error searching employees: " + e.getMessage()));
         }
     }
+
+    // Helper method to convert Employee to search result DTO
+    private EmployeeSearchResultDTO convertToSearchResultDTO(Employee employee) {
+        return new EmployeeSearchResultDTO(
+            employee.getFirstName() + " " + employee.getLastName(),
+            employee.getDeptCode() != null ? employee.getDeptCode() : "N/A",
+            employee.getWorkMail() != null ? employee.getWorkMail() : "N/A"
+        );
+    }
 }
-    

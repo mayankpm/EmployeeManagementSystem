@@ -1,0 +1,17 @@
+.card {
+  border-radius: 10px;
+}
+
+.form-control:read-only {
+  background-color: #f8f9fa;
+  border-color: #e9ecef;
+}
+
+.btn {
+  border-radius: 6px;
+}
+
+.alert {
+  border-radius: 10px;
+  border: none;
+}

@@ -1,5 +1,7 @@
 package com.ems.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -41,6 +43,7 @@ public class Employee {
     @Column(name = "DeptCode", length = 10)
     private String deptCode;
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RoleCode", referencedColumnName = "RoleCode", insertable = false, updatable = false)
     private Salary salary;

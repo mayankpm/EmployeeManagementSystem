@@ -1,0 +1,149 @@
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      
+      <!-- Loading Spinner -->
+      <div *ngIf="loading && !payrollData" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">Loading payroll data...</p>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+      </div>
+
+      <!-- Payroll Content -->
+      <div *ngIf="payrollData" class="card shadow-sm">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">
+            <i class="fas fa-file-invoice-dollar me-2"></i>My Payroll
+          </h4>
+          <button class="btn btn-light btn-sm" (click)="downloadSalarySlip()" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            <i class="fas fa-download me-2" *ngIf="!loading"></i>
+            Download Salary Slip
+          </button>
+        </div>
+        <div class="card-body">
+          
+          <!-- Employee Information -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6 class="text-muted mb-2">Employee Information</h6>
+              <p class="mb-1"><strong>Name:</strong> {{ payrollData.employee?.firstName }} {{ payrollData.employee?.lastName }}</p>
+              <p class="mb-1"><strong>Employee ID:</strong> {{ payrollData.employee?.empId }}</p>
+              <p class="mb-1"><strong>Department:</strong> {{ payrollData.employee?.deptCode }}</p>
+              <p class="mb-0"><strong>Role:</strong> {{ payrollData.employee?.roleCode }}</p>
+            </div>
+            <div class="col-md-6 text-end">
+              <h6 class="text-muted mb-2">Payroll Summary</h6>
+              <p class="mb-1"><strong>Total Records:</strong> {{ payrollData.payrolls?.length || 0 }}</p>
+              <p class="mb-1"><strong>Latest CTC:</strong> {{ formatCurrency(payrollData.payrolls?.[0]?.ctc) }}</p>
+              <p class="mb-0 text-muted">As of {{ today | date:'longDate' }}</p>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Payroll Records -->
+          <div *ngIf="payrollData.payrolls && payrollData.payrolls.length > 0; else noPayroll">
+            <h5 class="mb-3">
+              <i class="fas fa-history me-2"></i>Payroll History
+            </h5>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Employee ID</th>
+                    <th>Department</th>
+                    <th>Base Salary</th>
+                    <th>Allowances</th>
+                    <th>Incentive</th>
+                    <th>Tax</th>
+                    <th>CTC</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let payroll of payrollData.payrolls; let i = index" 
+                      [class.table-primary]="i === 0">
+                    <td>{{ payroll.empId }}</td>
+                    <td><span class="badge bg-info">{{ payroll.deptCode }}</span></td>
+                    <td>{{ formatCurrency(payroll.employee?.salary?.baseSalary) }}</td>
+                    <td class="text-success">{{ formatCurrency(payroll.allowances) }}</td>
+                    <td class="text-success">{{ formatCurrency(payroll.incentive) }}</td>
+                    <td class="text-danger">{{ formatCurrency(payroll.tax) }}</td>
+                    <td class="fw-bold text-primary">{{ formatCurrency(payroll.ctc) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Salary Breakdown for Latest Record -->
+            <div *ngIf="payrollData.payrolls[0]" class="row mt-4">
+              <div class="col-md-8 mx-auto">
+                <div class="card border-primary">
+                  <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                      <i class="fas fa-chart-pie me-2"></i>Latest Salary Breakdown
+                    </h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row text-center">
+                      <div class="col-4">
+                        <div class="border-end">
+                          <h6 class="text-success mb-1">Earnings</h6>
+                          <p class="h5 text-success mb-0">
+                            {{ formatCurrency(
+                              (payrollData.payrolls[0].employee?.salary?.baseSalary || 0) +
+                              (payrollData.payrolls[0].allowances || 0) +
+                              (payrollData.payrolls[0].incentive || 0)
+                            ) }}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="col-4">
+                        <div class="border-end">
+                          <h6 class="text-danger mb-1">Deductions</h6>
+                          <p class="h5 text-danger mb-0">
+                            {{ formatCurrency(payrollData.payrolls[0].tax || 0) }}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="col-4">
+                        <div>
+                          <h6 class="text-primary mb-1">Net Salary</h6>
+                          <p class="h5 text-primary mb-0">
+                            {{ formatCurrency(payrollData.payrolls[0].ctc || 0) }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noPayroll>
+            <div class="text-center py-5">
+              <i class="fas fa-file-invoice-dollar fa-4x text-muted mb-3"></i>
+              <h5 class="text-muted">No Payroll Records Found</h5>
+              <p class="text-muted">Your payroll information will appear here once it's generated by HR.</p>
+            </div>
+          </ng-template>
+
+          <div class="mt-4">
+            <a routerLink="/employee/dashboard" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

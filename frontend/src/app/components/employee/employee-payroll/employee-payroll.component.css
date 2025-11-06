@@ -1,0 +1,26 @@
+.card {
+  border-radius: 10px;
+}
+
+.table th {
+  border-top: none;
+  font-weight: 600;
+  color: #495057;
+}
+
+.badge {
+  font-size: 0.8em;
+}
+
+.btn {
+  border-radius: 6px;
+}
+
+.alert {
+  border-radius: 10px;
+  border: none;
+}
+
+.table-primary {
+  background-color: #e7f3ff;
+}

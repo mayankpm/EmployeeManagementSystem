@@ -1,101 +1,143 @@
 package com.ems.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import com.ems.dto.ApiResponse;
+import com.ems.dto.LoginRequest;
+import com.ems.dto.LoginResponse;
 import com.ems.model.Employee;
 import com.ems.repo.EmployeeRepository;
+import com.ems.config.JwtUtils;
+import com.ems.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpSession;
-
-@Controller
+@RestController
+@RequestMapping("/api/auth")
 public class AuthController {
+
     @Autowired
     private EmployeeRepository employeeRepo;
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     // REGISTRATION
-
-    @GetMapping("/register")
-    public String showRegisterForm(Model model) {
-        model.addAttribute("employee", new Employee());
-        return "register";
-    }
-
     @PostMapping("/register")
-    public String registerEmployee(@ModelAttribute Employee employee, Model model) {
-        // Check if email already exists
-        Employee existingEmployee = employeeRepo.findByPersonalEmail(employee.getPersonalEmail());
-        if (existingEmployee != null) {
-            model.addAttribute("error", "Email already registered!");
-            return "register";
-        }
+    public ResponseEntity<?> registerEmployee(@RequestBody Employee employee) {
+        try {
+            // Check if email already exists
+            Employee existingEmployee = employeeRepo.findByPersonalEmail(employee.getPersonalEmail());
+            if (existingEmployee != null) {
+                return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Email already registered!"));
+            }
 
-        // Default RoleCode for new user (since DB expects a RoleCode from Salary table)
-        if (employee.getRoleCode() == null || employee.getRoleCode().isEmpty()) {
-            employee.setRoleCode("L1");  // lowest level role from your Salary table
-        }
+            // Set defaults
+            if (employee.getRoleCode() == null || employee.getRoleCode().isEmpty()) {
+                employee.setRoleCode("L1");
+            }
+            if (employee.getDeptCode() == null || employee.getDeptCode().isEmpty()) {
+                employee.setDeptCode("HR");
+            }
 
-        // Default DeptCode (optional)
-        if (employee.getDeptCode() == null || employee.getDeptCode().isEmpty()) {
-            employee.setDeptCode("HR"); // safe default if needed
-        }
+            // Encode password before saving
+            if (employee.getPassword() != null && !employee.getPassword().isEmpty()) {
+                employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+            }
 
-        employee.setApprovalStatus("UNDEFINED");
-        employeeRepo.save(employee);
-        return "redirect:/login";
+            employee.setApprovalStatus("UNDEFINED");
+            Employee savedEmployee = employeeRepo.save(employee);
+            
+            return ResponseEntity.ok(ApiResponse.success(
+                "Registration successful! Please wait for HR approval.", 
+                savedEmployee
+            ));
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Registration failed: " + e.getMessage()));
+        }
     }
 
-    // LOGIN
-
-    @GetMapping("/login")
-    public String showLoginForm() {
-        return "login";
-    }
-
+ // LOGIN
+ // LOGIN
     @PostMapping("/login")
-    public String login(@RequestParam String personalEmail,
-                        @RequestParam String password,
-                        Model model,
-                        HttpSession session) { // <-- Add this
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            // Find employee by workMail
+            Employee emp = employeeRepo.findByWorkMail(loginRequest.getPersonalEmail());
 
-        Employee emp = employeeRepo.findByPersonalEmail(personalEmail);
-
-        if (emp == null) {
-            model.addAttribute("error", "Invalid email or password!");
-            return "login";
-        }
-
-        if (!"APPROVED".equalsIgnoreCase(emp.getApprovalStatus())) {
-            if ("DECLINED".equalsIgnoreCase(emp.getApprovalStatus())) {
-                model.addAttribute("error", "Your registration was declined by HR.");
-            } else {
-                model.addAttribute("error", "Your registration is pending HR approval. Please wait for confirmation.");
+            if (emp == null) {
+                return ResponseEntity.status(401)
+                    .body(ApiResponse.error("Invalid email or password!"));
             }
-            return "login";
-        }
 
-        if (emp.getPassword() != null && emp.getPassword().equals(password)) {
-            // ✅ store logged-in employee in session
-            session.setAttribute("loggedInEmployee", emp);
-
-            String role = emp.getRoleCode().trim().toUpperCase();
-            if (role.startsWith("ADM")) {
-                return "redirect:/admin/dashboard";
-            } else if (role.equals("HR")) {
-                return "redirect:/hr/dashboard";
-            } else {
-                return "redirect:/employee/dashboard?empId=" + emp.getEmpId();
+            // Check approval status
+            if (!"APPROVED".equalsIgnoreCase(emp.getApprovalStatus())) {
+                if ("DECLINED".equalsIgnoreCase(emp.getApprovalStatus())) {
+                    return ResponseEntity.status(403)
+                        .body(ApiResponse.error("Your registration was declined by HR."));
+                } else {
+                    return ResponseEntity.status(403)
+                        .body(ApiResponse.error("Your registration is pending HR approval."));
+                }
             }
-        } else {
-            model.addAttribute("error", "Invalid email or password!");
-            return "login";
+
+            // MANUAL PASSWORD CHECK (bypass Spring Security for now)
+            if (emp.getPassword() == null || !emp.getPassword().equals(loginRequest.getPassword())) {
+                return ResponseEntity.status(401)
+                    .body(ApiResponse.error("Invalid email or password!"));
+            }
+
+            // Generate JWT token manually (bypass Spring Security authentication)
+            final String jwtToken = jwtUtils.generateTokenManual(emp.getWorkMail(), emp.getEmpId(), emp.getRoleCode());
+
+            // Create login response
+            LoginResponse loginResponse = new LoginResponse();
+            loginResponse.setEmpId(emp.getEmpId());
+            loginResponse.setRoleCode(emp.getRoleCode());
+            loginResponse.setFirstName(emp.getFirstName());
+            loginResponse.setEmail(emp.getWorkMail());
+            loginResponse.setToken(jwtToken);
+            loginResponse.setSuccess(true);
+            loginResponse.setMessage("Login successful!");
+
+            return ResponseEntity.ok(loginResponse);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Login failed: " + e.getMessage()));
         }
     }
-
-
+    // Validate Token Endpoint (Optional - for frontend to check token validity)
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String token) {
+        try {
+            if (token != null && token.startsWith("Bearer ")) {
+                String jwtToken = token.substring(7);
+                String username = jwtUtils.extractUsername(jwtToken);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                
+                if (jwtUtils.validateToken(jwtToken, userDetails)) {
+                    return ResponseEntity.ok(ApiResponse.success("Token is valid"));
+                }
+            }
+            return ResponseEntity.status(401).body(ApiResponse.error("Invalid token"));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(ApiResponse.error("Invalid token"));
+        }
+    }
 }
