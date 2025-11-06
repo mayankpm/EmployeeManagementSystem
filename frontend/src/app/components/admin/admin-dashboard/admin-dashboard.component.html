@@ -93,9 +93,9 @@
               <table class="table align-middle">
                 <thead>
                   <tr>
-                    <th>Role Code</th>
-                    <th>Base Salary (in lakhs)</th>
-                    <th class="text-end">Actions</th>
+                    <th>ROLE CODE</th>
+                    <th>BASE SALARY (IN LAKHS)</th>
+                    <th class="text-end">ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -108,6 +108,9 @@
                       <button class="btn btn-outline-primary btn-sm me-2" (click)="updateRole(r)">Update</button>
                       <button class="btn btn-outline-danger btn-sm" (click)="deleteRole(r)">Delete</button>
                     </td>
+                  </tr>
+                  <tr *ngIf="roles && roles.length === 0">
+                    <td colspan="3" class="text-center text-muted">No roles available.</td>
                   </tr>
                 </tbody>
               </table>
@@ -122,7 +125,56 @@
         </div>
       </ng-container>
       <ng-container *ngIf="isTab('departments')">
-        <div class="alert alert-secondary">Department editing coming soon.</div>
+        <div class="card shadow-sm">
+          <div class="card-header">Department Management</div>
+          <div class="card-body">
+            <div *ngIf="deptsLoading" class="alert alert-info">Loading departments...</div>
+            <div class="table-responsive" *ngIf="!deptsLoading">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>Department Code</th>
+                    <th>Department Name</th>
+                    <th>Assigned HR</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let d of departments">
+                    <td style="max-width:180px;"><input class="form-control form-control-sm" [(ngModel)]="d.deptCode" disabled></td>
+                    <td><input class="form-control form-control-sm" [(ngModel)]="d.deptName"></td>
+                    <td style="max-width:200px;"><input class="form-control form-control-sm" [(ngModel)]="d.assignedHR"></td>
+                    <td class="text-end">
+                      <button class="btn btn-outline-primary btn-sm me-2" (click)="updateDepartment(d)">Edit</button>
+                      <button class="btn btn-outline-danger btn-sm" (click)="deleteDepartment(d)">Delete</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="border rounded p-3 mt-3">
+              <div class="fw-semibold mb-2">Add New Department</div>
+              <div class="row g-2">
+                <div class="col-12">
+                  <label class="form-label">Department Code:</label>
+                  <input class="form-control" [(ngModel)]="newDept.deptCode">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Department Name:</label>
+                  <input class="form-control" [(ngModel)]="newDept.deptName">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Assigned HR:</label>
+                  <input class="form-control" [(ngModel)]="newDept.assignedHR">
+                </div>
+              </div>
+              <div class="mt-3">
+                <button class="btn btn-primary" (click)="addDepartment()">Add Department</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </ng-container>
     </div>
   </div>

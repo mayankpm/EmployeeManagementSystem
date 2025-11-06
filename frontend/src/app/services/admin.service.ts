@@ -44,6 +44,23 @@ export class AdminService {
   deleteRole(roleCode: string): Observable<any> {
     return this.http.delete<any>('http://localhost:8080/api/roles/' + roleCode, { headers: this.getAuthHeaders() });
   }
+
+  // Departments API
+  getDepartments(): Observable<any[]> {
+    return this.http.get<any[]>('http://localhost:8080/api/departments', { headers: this.getAuthHeaders() });
+  }
+
+  addDepartment(deptCode: string, deptName: string, assignedHR: string): Observable<any> {
+    return this.http.post<any>('http://localhost:8080/api/departments', { deptCode, deptName, assignedHR }, { headers: this.getAuthHeaders() });
+  }
+
+  updateDepartment(deptCode: string, deptName: string, assignedHR: string): Observable<any> {
+    return this.http.put<any>('http://localhost:8080/api/departments/' + deptCode, { deptCode, deptName, assignedHR }, { headers: this.getAuthHeaders() });
+  }
+
+  deleteDepartment(deptCode: string): Observable<any> {
+    return this.http.delete<any>('http://localhost:8080/api/departments/' + deptCode, { headers: this.getAuthHeaders() });
+  }
 }
 
 

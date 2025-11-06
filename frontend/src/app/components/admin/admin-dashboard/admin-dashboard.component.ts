@@ -22,11 +22,16 @@ export class AdminDashboardComponent implements OnInit {
   rolesLoading = false;
   roles: Array<{ roleCode: string; baseSalary: number }> = [];
   newRole = { roleCode: '', baseSalary: 0 };
+  deptsLoading = false;
+  departments: Array<{ deptCode: string; deptName: string; assignedHR: string }> = [];
+  newDept = { deptCode: '', deptName: '', assignedHR: '' };
 
   constructor(private adminService: AdminService, private router: Router) {}
 
   ngOnInit(): void {
     this.fetchDashboard();
+    // Preload roles so the list is ready when the tab is opened
+    this.loadRoles();
   }
 
   fetchDashboard(): void {
@@ -117,6 +122,9 @@ export class AdminDashboardComponent implements OnInit {
     if (tab === 'roles' && this.roles.length === 0) {
       this.loadRoles();
     }
+    if (tab === 'departments' && this.departments.length === 0) {
+      this.loadDepartments();
+    }
   }
 
   isTab(tab: 'employees' | 'roles' | 'departments'): boolean {
@@ -141,6 +149,46 @@ export class AdminDashboardComponent implements OnInit {
         this.rolesLoading = false;
       },
       error: () => { this.rolesLoading = false; }
+    });
+  }
+
+  // Department management methods
+  private loadDepartments(): void {
+    this.deptsLoading = true;
+    this.adminService.getDepartments().subscribe({
+      next: (res) => {
+        const list = Array.isArray(res) ? res : [];
+        this.departments = list.map((d: any) => ({
+          deptCode: d.deptCode,
+          deptName: d.deptName,
+          assignedHR: d.assignedHR
+        })).sort((a, b) => String(a.deptCode).localeCompare(String(b.deptCode)));
+        this.deptsLoading = false;
+      },
+      error: () => { this.deptsLoading = false; }
+    });
+  }
+
+  updateDepartment(d: any): void {
+    this.adminService.updateDepartment(d.deptCode, d.deptName, d.assignedHR).subscribe({ next: () => {} });
+  }
+
+  deleteDepartment(d: any): void {
+    if (!confirm('Delete department ' + d.deptCode + '?')) return;
+    this.adminService.deleteDepartment(d.deptCode).subscribe({
+      next: () => { this.departments = this.departments.filter(x => x.deptCode !== d.deptCode); }
+    });
+  }
+
+  addDepartment(): void {
+    const code = (this.newDept.deptCode || '').trim();
+    if (!code) return;
+    this.adminService.addDepartment(code, this.newDept.deptName, this.newDept.assignedHR).subscribe({
+      next: () => {
+        this.departments.push({ ...this.newDept });
+        this.departments.sort((a, b) => String(a.deptCode).localeCompare(String(b.deptCode)));
+        this.newDept = { deptCode: '', deptName: '', assignedHR: '' };
+      }
     });
   }
 
