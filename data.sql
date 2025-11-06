@@ -140,3 +140,7 @@ UPDATE payroll p
 JOIN employee e ON p.EmpId = e.EmpId
 SET p.DeptCode = e.DeptCode
 WHERE p.DeptCode IS NULL;
+
+UPDATE employee
+SET PersonalEmail = workMail
+WHERE workMail IS NOT NULL;
