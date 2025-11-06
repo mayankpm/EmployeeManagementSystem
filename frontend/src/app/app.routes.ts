@@ -19,5 +19,9 @@ export const routes: Routes = [
     path: 'hr/employees', 
     loadComponent: () => import('./components/hr/employee-list/employee-list.component').then(m => m.HREmployeeListComponent)
   },
+   { 
+    path: 'hr/approvals', 
+    loadComponent: () => import('./components/hr/approvals/approvals.component').then(m => m.HrApprovalsComponent)
+  },
   { path: '**', redirectTo: '/login' }
 ];

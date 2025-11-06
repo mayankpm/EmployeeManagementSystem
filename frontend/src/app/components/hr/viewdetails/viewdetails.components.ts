@@ -54,6 +54,7 @@ export class EmployeeDetailsComponent implements OnInit {
     });
   }
 
+  // Add this missing method that's called in the template
   getDepartmentName(deptCode: string): string {
     const departments: { [key: string]: string } = {
       'HR': 'Human Resources',
