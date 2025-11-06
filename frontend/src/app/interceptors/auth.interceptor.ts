@@ -28,10 +28,11 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          sessionStorage.removeItem('auth-token');
-          sessionStorage.removeItem('auth-user');
-          this.router.navigate(['/login']);
+        if (error.status === 401 || error.status === 403) {
+          // Clear all session data
+          sessionStorage.clear();
+          // Navigate to login and replace current history entry
+          this.router.navigate(['/login'], { replaceUrl: true });
         }
         return throwError(() => error);
       })

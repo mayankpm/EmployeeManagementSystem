@@ -216,50 +216,113 @@
         <button class="btn-close" (click)="closeEdit()"></button>
       </div>
       <div class="admin-modal-body">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">First Name <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" [(ngModel)]="editModel.firstName">
+        <form [formGroup]="editForm">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">First Name <span class="text-danger">*</span></label>
+              <input type="text" 
+                     class="form-control" 
+                     formControlName="firstName"
+                     [class.is-invalid]="editFirstName?.invalid && editFirstName?.touched">
+              <div class="invalid-feedback" *ngIf="editFirstName?.errors?.['required']">
+                First name is required
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Last Name <span class="text-danger">*</span></label>
+              <input type="text" 
+                     class="form-control" 
+                     formControlName="lastName"
+                     [class.is-invalid]="editLastName?.invalid && editLastName?.touched">
+              <div class="invalid-feedback" *ngIf="editLastName?.errors?.['required']">
+                Last name is required
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Age <span class="text-danger">*</span></label>
+              <input type="number" 
+                     class="form-control" 
+                     formControlName="age"
+                     [class.is-invalid]="editAge?.invalid && editAge?.touched">
+              <div class="invalid-feedback" *ngIf="editAge?.errors?.['required']">
+                Age is required
+              </div>
+              <div class="invalid-feedback" *ngIf="editAge?.errors?.['min']">
+                Age must be at least 18
+              </div>
+              <div class="invalid-feedback" *ngIf="editAge?.errors?.['max']">
+                Age cannot exceed 100
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Personal Email <span class="text-danger">*</span></label>
+              <input type="email" 
+                     class="form-control" 
+                     formControlName="personalEmail"
+                     [class.is-invalid]="editPersonalEmail?.invalid && editPersonalEmail?.touched">
+              <div class="invalid-feedback" *ngIf="editPersonalEmail?.errors?.['required']">
+                Personal email is required
+              </div>
+              <div class="invalid-feedback" *ngIf="editPersonalEmail?.errors?.['email']">
+                Please enter a valid email address
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone <span class="text-danger">*</span></label>
+              <input type="tel" 
+                     class="form-control" 
+                     formControlName="phone"
+                     placeholder="e.g., 9876543210"
+                     maxlength="10"
+                     (input)="onPhoneInput($event)"
+                     [class.is-invalid]="editPhone?.invalid && editPhone?.touched">
+              <div class="invalid-feedback" *ngIf="editPhone?.errors?.['required']">
+                Phone number is required
+              </div>
+              <div class="invalid-feedback" *ngIf="editPhone?.errors?.['pattern']">
+                {{ editPhone?.errors?.['pattern']?.message || 'Phone number must have exactly 10 digits' }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Role <span class="text-danger">*</span></label>
+              <select class="form-select" 
+                      formControlName="roleCode"
+                      [class.is-invalid]="editRoleCode?.invalid && editRoleCode?.touched">
+                <option value="" disabled selected>Select Role</option>
+                <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="editRoleCode?.errors?.['required']">
+                Role is required
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Department <span class="text-danger">*</span></label>
+              <select class="form-select" 
+                      formControlName="deptCode"
+                      [class.is-invalid]="editDeptCode?.invalid && editDeptCode?.touched">
+                <option value="" disabled selected>Select Department</option>
+                <option *ngFor="let d of departmentOptions" [value]="d">{{ d }}</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="editDeptCode?.errors?.['required']">
+                Department is required
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Address <span class="text-danger">*</span></label>
+              <input type="text" 
+                     class="form-control" 
+                     formControlName="address"
+                     [class.is-invalid]="editAddress?.invalid && editAddress?.touched">
+              <div class="invalid-feedback" *ngIf="editAddress?.errors?.['required']">
+                Address is required
+              </div>
+            </div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Last Name <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" [(ngModel)]="editModel.lastName">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Age <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" [(ngModel)]="editModel.age">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Personal Email <span class="text-danger">*</span></label>
-            <input type="email" class="form-control" [(ngModel)]="editModel.personalEmail">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Phone</label>
-            <input type="text" class="form-control" [(ngModel)]="editModel.phone">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Role <span class="text-danger">*</span></label>
-            <select class="form-select" [(ngModel)]="editModel.roleCode">
-              <option value="" disabled selected>Select Role</option>
-              <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Department <span class="text-danger">*</span></label>
-            <select class="form-select" [(ngModel)]="editModel.deptCode">
-              <option value="" disabled selected>Select Department</option>
-              <option *ngFor="let d of departmentOptions" [value]="d">{{ d }}</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Address</label>
-            <input type="text" class="form-control" [(ngModel)]="editModel.address">
-          </div>
-        </div>
+        </form>
       </div>
       <div class="admin-modal-footer">
         <button class="btn btn-light" (click)="closeEdit()" [disabled]="editLoading">Cancel</button>
-        <button class="btn btn-primary" (click)="saveEdit()" [disabled]="editLoading">
+        <button class="btn btn-primary" (click)="saveEdit()" [disabled]="editLoading || !editForm.valid">
           <span *ngIf="editLoading" class="spinner-border spinner-border-sm me-2"></span>
           Update Employee
         </button>

@@ -1,5 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { EmployeeService } from '../../../services/employee.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-employee-dashboard',
@@ -7,21 +11,68 @@ import { EmployeeService } from '../../../services/employee.service';
   templateUrl: './employee-dashboard.component.html',
   styleUrls: ['./employee-dashboard.component.css']
 })
-export class EmployeeDashboardComponent implements OnInit {
+export class EmployeeDashboardComponent implements OnInit, OnDestroy {
   employee: any = null;
   searchResults: any[] = [];
   searchQuery: string = '';
   loading = false;
   errorMessage = '';
   successMessage = '';
+  private routerSubscription?: Subscription;
 
-  constructor(private employeeService: EmployeeService) {}
+  constructor(
+    private employeeService: EmployeeService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.loadDashboard();
+    // Check authentication before loading dashboard
+    this.checkAuthAndLoad();
+    
+    // Also listen to router events in case of browser navigation
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.checkAuthAndLoad();
+      });
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
+  private checkAuthAndLoad(): void {
+    // Aggressively check authentication
+    const token = this.authService.getToken();
+    const user = this.authService.getUser();
+    
+    if (!token || !user || !this.authService.isLoggedIn()) {
+      sessionStorage.clear();
+      this.router.navigate(['/login'], { replaceUrl: true });
+      return;
+    }
+    
+    // Always reload dashboard data when navigating (including browser back/forward)
+    // This ensures fresh data and validates authentication
+    if (!this.loading) {
+      this.loadDashboard();
+    }
   }
 
   loadDashboard(): void {
+    // Triple-check authentication before making API call
+    const token = this.authService.getToken();
+    const user = this.authService.getUser();
+    
+    if (!token || !user || !this.authService.isLoggedIn()) {
+      sessionStorage.clear();
+      this.router.navigate(['/login'], { replaceUrl: true });
+      return;
+    }
+
     this.loading = true;
     this.employeeService.getDashboard().subscribe({
       next: (response) => {
@@ -46,6 +97,12 @@ export class EmployeeDashboardComponent implements OnInit {
       },
       error: (error) => {
         this.loading = false;
+        // If 401 or 403, authentication failed - redirect to login
+        if (error.status === 401 || error.status === 403) {
+          sessionStorage.clear();
+          this.router.navigate(['/login'], { replaceUrl: true });
+          return;
+        }
         this.errorMessage = error.error?.message || 'Error loading dashboard';
       }
     });
@@ -90,5 +147,10 @@ export class EmployeeDashboardComponent implements OnInit {
     this.searchQuery = '';
     this.searchResults = [];
     this.errorMessage = '';
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

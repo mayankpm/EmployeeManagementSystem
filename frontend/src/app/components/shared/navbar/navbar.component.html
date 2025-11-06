@@ -13,21 +13,9 @@
     <!-- Navigation Links -->
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link" [routerLink]="getHomeLink()" routerLinkActive="active">
-            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-          </a>
-        </li>
-        <li class="nav-item" *ngIf="isEmployee()">
-          <a class="nav-link" routerLink="/employee/profile" routerLinkActive="active">
-            <i class="fas fa-user me-1"></i>Profile
-          </a>
-        </li>
-        <li class="nav-item" *ngIf="isEmployee()">
-          <a class="nav-link" routerLink="/employee/payroll" routerLinkActive="active">
-            <i class="fas fa-file-invoice-dollar me-1"></i>Payroll
-          </a>
-        </li>
+        
+        
+        
       </ul>
 
       <!-- User Info & Logout -->

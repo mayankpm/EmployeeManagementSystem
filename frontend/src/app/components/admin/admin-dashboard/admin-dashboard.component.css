@@ -1,71 +1,252 @@
-/* Admin employee card aesthetics (reuse HR styles) */
+/* Admin Dashboard - Modern Stunning Design */
+
 .avatar-circle {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background-color: #eef2f6;
-  color: #55646e;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+  background-size: 200% 100%;
+  color: white;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-}
-.role-badge {
-  background-color: #e7f0ff;
-  color: #1d4ed8;
-  border-radius: 999px;
-  padding: 2px 10px;
-  font-weight: 600;
-  font-size: 12px;
-}
-.admin-emp-card {
-  transition: transform .12s ease, box-shadow .12s ease;
-}
-.admin-emp-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+  font-weight: 800;
+  font-size: 1.1rem;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  transition: all 0.4s ease;
+  animation: gradientShift 3s ease infinite;
 }
 
-/* Sidebar styles */
+.avatar-circle:hover {
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+.role-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+  background-size: 200% 100%;
+  color: white;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-weight: 700;
+  font-size: 11px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: gradientShift 3s ease infinite;
+  transition: all 0.3s ease;
+}
+
+.role-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.4);
+}
+
+.admin-emp-card {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 24px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(102, 126, 234, 0.15);
+  position: relative;
+}
+
+.admin-emp-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.admin-emp-card:hover {
+  transform: translateY(-10px) scale(1.03);
+  box-shadow: 0 16px 48px rgba(102, 126, 234, 0.25), 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.admin-emp-card:hover::before {
+  opacity: 1;
+}
+
+/* Enhanced Sidebar styles */
+.admin-sidenav {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(102, 126, 234, 0.15);
+  overflow: hidden;
+}
+
 .admin-sidenav .list-group-item {
   border: none;
-  border-left: 6px solid transparent;
-  padding: 12px 16px;
-  color: #555;
-}
-.admin-sidenav .list-group-item.active {
-  background-color: #f1f3f5;
-  color: #000;
-  border-left-color: #343a40;
+  border-left: 4px solid transparent;
+  padding: 16px 22px;
+  color: var(--text-primary);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Modal styles */
+.admin-sidenav .list-group-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.admin-sidenav .list-group-item:hover {
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.08) 100%);
+  transform: translateX(6px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.admin-sidenav .list-group-item:hover::before {
+  transform: scaleY(1);
+}
+
+.admin-sidenav .list-group-item.active {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  color: var(--text-primary);
+  border-left-color: #667eea;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+  transform: translateX(4px);
+}
+
+.admin-sidenav .list-group-item.active::before {
+  transform: scaleY(1);
+  width: 5px;
+}
+
+/* Enhanced Modal styles */
 .admin-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.35);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1050;
+  animation: fadeIn 0.4s ease;
 }
+
 .admin-modal {
   width: 100%;
-  max-width: 640px;
-  background: #fff;
-  border-radius: .5rem;
-  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+  max-width: 680px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 28px;
+  box-shadow: 0 24px 64px rgba(102, 126, 234, 0.25), 0 8px 24px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   overflow: hidden;
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.admin-modal-header, .admin-modal-footer {
-  padding: .75rem 1rem;
-  background: #f8f9fa;
+
+.admin-modal-header {
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.15);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.3px;
+  position: relative;
 }
-.admin-modal-body { padding: 1rem; }
-/* styles for admin dashboard */
+
+.admin-modal-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.4), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease infinite;
+}
+
+.admin-modal-footer {
+  padding: 1.75rem 2rem;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 2px solid rgba(102, 126, 234, 0.1);
+  gap: 1rem;
+}
+
+.admin-modal-footer .btn {
+  border-radius: 14px;
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  transition: all 0.4s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.admin-modal-footer .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.admin-modal-body {
+  padding: 2.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  position: relative;
+}
+
+.admin-modal-body .form-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+/* Card stats */
+.card.shadow-sm {
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.card.shadow-sm:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.15);
+}
+
+.card.shadow-sm .card-body {
+  position: relative;
+}
+
+.card.shadow-sm .card-body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
 
 

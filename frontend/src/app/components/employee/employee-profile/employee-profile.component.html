@@ -1,15 +1,54 @@
-<div class="container-fluid py-4">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
+<div class="dashboard-container">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading && !employee" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Loading profile...</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="employee" class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h1 class="sidebar-title">Employee Portal</h1>
+      <hr class="sidebar-divider">
       
-      <!-- Loading Spinner -->
-      <div *ngIf="loading && !employee" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
+      <nav class="sidebar-nav">
+        <a routerLink="/employee/dashboard" routerLinkActive="active" class="nav-item">
+          Dashboard
+        </a>
+        <hr class="sidebar-divider">
+        <a routerLink="/employee/profile" routerLinkActive="active" class="nav-item">
+          Edit Profile
+        </a>
+        <hr class="sidebar-divider">
+        <a routerLink="/employee/payroll" routerLinkActive="active" class="nav-item">
+          View Payroll
+        </a>
+      </nav>
+
+      <!-- Employee Name and Logout - Positioned Above Footer -->
+      <div class="sidebar-logout-section">
+        <hr class="sidebar-divider">
+        <div class="employee-info">
+          <div class="employee-name">
+            <i class="fas fa-user-circle me-2"></i>
+            {{ employee.firstName }} {{ employee.lastName }}
+          </div>
         </div>
-        <p class="mt-2 text-muted">Loading profile...</p>
+        <!-- Logout Button -->
+        <button class="btn btn-outline-danger btn-sm w-100 mt-3" (click)="logout()" title="Click to logout">
+          <i class="fas fa-sign-out-alt me-2"></i>Logout
+        </button>
       </div>
 
+      <!-- Empty footer for spacing -->
+      <div class="sidebar-footer"></div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
       <!-- Error Message -->
       <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="fas fa-exclamation-triangle me-2"></i>
@@ -25,7 +64,7 @@
       </div>
 
       <!-- Profile Content -->
-      <div *ngIf="employee" class="card shadow-sm">
+      <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
           <h4 class="mb-0">
             <i class="fas fa-user-edit me-2"></i>Edit Profile
@@ -89,10 +128,17 @@
                          class="form-control" 
                          id="phone"
                          formControlName="phone"
+                         placeholder="e.g., 9876543210"
+                         maxlength="10"
+                         (input)="onPhoneInput($event)"
                          [class.is-invalid]="phone?.invalid && phone?.touched">
                   <div class="invalid-feedback" *ngIf="phone?.errors?.['required']">
                     Phone number is required
                   </div>
+                  <div class="invalid-feedback" *ngIf="phone?.errors?.['pattern']">
+                    {{ phone?.errors?.['pattern']?.message || 'Please enter a valid phone number (exactly 10 digits)' }}
+                  </div>
+                  
                 </div>
               </div>
             </div>
@@ -146,13 +192,10 @@
                 <i class="fas fa-save me-2" *ngIf="!loading"></i>
                 {{ loading ? 'Updating...' : 'Update Profile' }}
               </button>
-              <a routerLink="/employee/dashboard" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-              </a>
             </div>
           </form>
         </div>
       </div>
-    </div>
+    </main>
   </div>
 </div>

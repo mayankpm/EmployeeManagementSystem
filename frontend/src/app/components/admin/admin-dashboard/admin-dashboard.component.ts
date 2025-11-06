@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AdminService } from '../../../services/admin.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -19,6 +21,7 @@ export class AdminDashboardComponent implements OnInit {
   editLoading = false;
   editTarget: any = null;
   editModel: any = { firstName: '', lastName: '', age: '', personalEmail: '', phone: '', address: '', roleCode: '', deptCode: '', approvalStatus: '' };
+  editForm: FormGroup;
   departmentOptions: string[] = [];
   roleOptions: string[] = [];
   activeTab: 'employees' | 'roles' | 'departments' = 'employees';
@@ -33,15 +36,57 @@ export class AdminDashboardComponent implements OnInit {
   deptsPage = 1;
   deptsPageSize = 10;
 
-  constructor(private adminService: AdminService, private router: Router) {}
+  constructor(
+    private adminService: AdminService, 
+    private router: Router,
+    private authService: AuthService,
+    private formBuilder: FormBuilder
+  ) {
+    // Initialize edit form with validation
+    this.editForm = this.formBuilder.group({
+      firstName: ['', [Validators.required]],
+      lastName: ['', [Validators.required]],
+      age: ['', [Validators.required, Validators.min(18), Validators.max(100)]],
+      personalEmail: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, this.phoneValidator]],
+      address: ['', [Validators.required]],
+      roleCode: ['', [Validators.required]],
+      deptCode: ['', [Validators.required]],
+      approvalStatus: ['']
+    });
+  }
 
   ngOnInit(): void {
+    // Check authentication before loading dashboard
+    this.checkAuthAndLoad();
+  }
+
+  private checkAuthAndLoad(): void {
+    // Aggressively check authentication
+    const token = this.authService.getToken();
+    const user = this.authService.getUser();
+    
+    if (!token || !user || !this.authService.isLoggedIn()) {
+      sessionStorage.clear();
+      this.router.navigate(['/login'], { replaceUrl: true });
+      return;
+    }
     this.fetchDashboard();
     // Preload roles so the list is ready when the tab is opened
     this.loadRoles();
   }
 
   fetchDashboard(): void {
+    // Triple-check authentication before making API call
+    const token = this.authService.getToken();
+    const user = this.authService.getUser();
+    
+    if (!token || !user || !this.authService.isLoggedIn()) {
+      sessionStorage.clear();
+      this.router.navigate(['/login'], { replaceUrl: true });
+      return;
+    }
+
     this.loading = true;
     this.errorMessage = '';
     this.adminService.getDashboard().subscribe({
@@ -59,6 +104,12 @@ export class AdminDashboardComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
+        // If 401 or 403, authentication failed - redirect to login
+        if (err.status === 401 || err.status === 403) {
+          sessionStorage.clear();
+          this.router.navigate(['/login'], { replaceUrl: true });
+          return;
+        }
         this.errorMessage = err.error?.message || 'Failed to load Admin dashboard';
       }
     });
@@ -114,9 +165,32 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  /**
+   * Custom validator for phone numbers - exactly 10 digits
+   */
+  phoneValidator = (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null; // Let required validator handle empty values
+    }
+
+    const phoneValue = control.value.toString().trim();
+    const digitsOnly = phoneValue.replace(/[\s\-\(\)\+\.]/g, '');
+    
+    if (!/^\d+$/.test(digitsOnly)) {
+      return { pattern: { message: 'Phone number must contain only numbers' } };
+    }
+    
+    if (digitsOnly.length !== 10) {
+      return { pattern: { message: 'Phone number must have exactly 10 digits' } };
+    }
+    
+    return null;
+  }
+
   openEdit(e: any): void {
     this.editTarget = e;
-    this.editModel = {
+    // Populate form with employee data
+    this.editForm.patchValue({
       firstName: e.firstName || '',
       lastName: e.lastName || '',
       age: e.age || '',
@@ -126,24 +200,37 @@ export class AdminDashboardComponent implements OnInit {
       roleCode: e.roleCode || '',
       deptCode: e.deptCode || '',
       approvalStatus: e.approvalStatus || ''
-    };
+    });
     this.editOpen = true;
   }
 
   closeEdit(): void {
     if (this.editLoading) return;
     this.editOpen = false;
+    this.editForm.reset();
   }
 
   saveEdit(): void {
     if (!this.editTarget) return;
+    
+    // Mark all fields as touched to show validation errors
+    if (!this.editForm.valid) {
+      Object.keys(this.editForm.controls).forEach(key => {
+        this.editForm.get(key)?.markAsTouched();
+      });
+      return;
+    }
+    
     this.editLoading = true;
-    this.adminService.updateEmployee(this.editTarget.empId, this.editModel).subscribe({
+    const formData = this.editForm.value;
+    
+    this.adminService.updateEmployee(this.editTarget.empId, formData).subscribe({
       next: (res) => {
         this.editLoading = false;
         this.editOpen = false;
         // merge changes into local data to reflect immediately
-        Object.assign(this.editTarget, this.editModel);
+        Object.assign(this.editTarget, formData);
+        this.editForm.reset();
       },
       error: (err) => {
         this.editLoading = false;
@@ -151,6 +238,28 @@ export class AdminDashboardComponent implements OnInit {
       }
     });
   }
+
+  /**
+   * Handle phone input to restrict to digits only and limit to 10 digits
+   */
+  onPhoneInput(event: any): void {
+    let value = event.target.value;
+    value = value.replace(/\D/g, '');
+    if (value.length > 10) {
+      value = value.substring(0, 10);
+    }
+    this.editForm.patchValue({ phone: value }, { emitEvent: false });
+  }
+
+  // Getters for form controls
+  get editFirstName() { return this.editForm.get('firstName'); }
+  get editLastName() { return this.editForm.get('lastName'); }
+  get editAge() { return this.editForm.get('age'); }
+  get editPersonalEmail() { return this.editForm.get('personalEmail'); }
+  get editPhone() { return this.editForm.get('phone'); }
+  get editAddress() { return this.editForm.get('address'); }
+  get editRoleCode() { return this.editForm.get('roleCode'); }
+  get editDeptCode() { return this.editForm.get('deptCode'); }
 
   // Sidebar tab helpers
   setTab(tab: 'employees' | 'roles' | 'departments'): void {
