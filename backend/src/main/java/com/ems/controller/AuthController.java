@@ -80,7 +80,7 @@ public class AuthController {
         }
 
         if (emp.getPassword() != null && emp.getPassword().equals(password)) {
-            // ✅ store logged-in employee in session
+           
             session.setAttribute("loggedInEmployee", emp);
 
             String role = emp.getRoleCode().trim().toUpperCase();

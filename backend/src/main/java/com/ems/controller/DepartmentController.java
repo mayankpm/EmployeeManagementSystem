@@ -1,57 +1,65 @@
 package com.ems.controller;
 
-import com.ems.model.Department;
-import com.ems.repo.DepartemntRepo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import com.ems.dto.DepartmentDTO;
+import com.ems.service.DepartmentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
-@RequestMapping("/departments")
+@RestController
+@RequestMapping("/api/departments")
+@CrossOrigin(origins = "http://localhost:4200")
+@RequiredArgsConstructor
 public class DepartmentController {
 
-    @Autowired
-    private DepartemntRepo departmentRepo;
+    private final DepartmentService departmentService;
 
-    // View all departments
     @GetMapping
-    public String listDepartments(Model model) {
-        List<Department> departments = departmentRepo.findAll();
-        model.addAttribute("departments", departments);
-        return "manage-departments";
+    public ResponseEntity<List<DepartmentDTO.Response>> getAllDepartments() {
+        List<DepartmentDTO.Response> departments = departmentService.getAllDepartments();
+        return ResponseEntity.ok(departments);
     }
 
-    // Add new department
+    // Change to use @RequestBody
     @PostMapping("/add")
-    public String addDepartment(@RequestParam String deptCode,
-                                @RequestParam String deptName,
-                                @RequestParam(required = false) String assignedHR) {
-        Department dept = new Department(deptCode, deptName, assignedHR);
-        departmentRepo.save(dept);
-        return "redirect:/departments";
-    }
-
-    // Update department (name and HR)
-    @PostMapping("/update")
-    public String updateDepartment(@RequestParam String deptCode,
-                                   @RequestParam String deptName,
-                                   @RequestParam(required = false) String assignedHR) {
-        Department existing = departmentRepo.findById(deptCode).orElse(null);
-        if (existing != null) {
-            existing.setDeptName(deptName);
-            existing.setAssignedHR(assignedHR);
-            departmentRepo.save(existing);
+    public ResponseEntity<DepartmentDTO.Response> addDepartment(@RequestBody DepartmentDTO.Request departmentRequest) {
+        try {
+            DepartmentDTO.Response savedDepartment = departmentService.addDepartment(
+                departmentRequest.getDeptCode(), 
+                departmentRequest.getDeptName(), 
+                departmentRequest.getAssignedHR()
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedDepartment);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
-        return "redirect:/departments";
     }
 
-    // Delete department
-    @GetMapping("/delete/{deptCode}")
-    public String deleteDepartment(@PathVariable String deptCode) {
-        departmentRepo.deleteById(deptCode);
-        return "redirect:/departments";
+    // Change to use @RequestBody
+    @PostMapping("/update")
+    public ResponseEntity<DepartmentDTO.Response> updateDepartment(@RequestBody DepartmentDTO.Request departmentRequest) {
+        try {
+            DepartmentDTO.Response updatedDepartment = departmentService.updateDepartment(
+                departmentRequest.getDeptCode(), 
+                departmentRequest.getDeptName(), 
+                departmentRequest.getAssignedHR()
+            );
+            return ResponseEntity.ok(updatedDepartment);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/delete/{deptCode}")
+    public ResponseEntity<Void> deleteDepartment(@PathVariable String deptCode) {
+        try {
+            departmentService.deleteDepartment(deptCode);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
