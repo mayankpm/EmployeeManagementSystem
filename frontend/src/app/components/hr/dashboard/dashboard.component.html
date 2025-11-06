@@ -1,0 +1,146 @@
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <app-sidebar 
+        [currentUser]="currentUser"
+        [activeRoute]="activeRoute">
+    </app-sidebar>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div class="page-title">
+                <h1>Employee Management - {{ currentUser?.deptCode }} Department</h1>
+                <p>View and manage employee records in your department</p>
+            </div>
+            <div class="user-info">
+                <a (click)="logout()" class="logout-btn">Logout</a>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats-container" *ngIf="stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.totalEmployees }}</div>
+                <div class="stat-label">Total Employees</div>
+                <small class="text-muted">in {{ stats.hrDepartment }}</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.regularCount }}</div>
+                <div class="stat-label">Regular Employees</div>
+                <small class="text-muted">Developers & Staff</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.pendingApprovals }}</div>
+                <div class="stat-label">Pending Approvals</div>
+                <small class="text-muted">Awaiting review</small>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ getHREmployeesCount() }}</div>
+                <div class="stat-label">HR Staff</div>
+                <small class="text-muted">in {{ stats.hrDepartment }}</small>
+            </div>
+        </div>
+        
+        <!-- Search -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" class="search-input" 
+                       [(ngModel)]="searchTerm"
+                       (input)="performSearch()"
+                       placeholder="Search employees in {{ currentUser?.deptCode }} department...">
+            </div>
+        </div>
+        
+        <!-- Employee Cards -->
+        <div class="employees-grid">
+            <div *ngIf="isLoading" class="no-data">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Loading employees from {{ currentUser?.deptCode }} department...</p>
+            </div>
+
+            <div *ngIf="!isLoading && filteredEmployees.length === 0" class="no-data">
+                <h3>No employees found</h3>
+                <p *ngIf="searchTerm">No employees in {{ currentUser?.deptCode }} department match your search for "{{ searchTerm }}"</p>
+                <p *ngIf="!searchTerm">No employee records found in {{ currentUser?.deptCode }} department</p>
+            </div>
+
+            <div *ngFor="let emp of getPaginatedEmployees()" 
+                 class="employee-card" 
+                 (click)="viewEmployeeDetails(emp.empId!)">
+                <div class="employee-header">
+                    <div class="employee-avatar">
+                        {{ emp.firstName?.charAt(0) }}{{ emp.lastName?.charAt(0) }}
+                    </div>
+                    <div class="employee-info">
+                        <h3>{{ emp.firstName }} {{ emp.lastName }}</h3>
+                        <p>{{ emp.personalEmail }}</p>
+                        <small class="text-muted">Department: {{ emp.deptCode }}</small>
+                    </div>
+                </div>
+                
+                <div class="employee-details">
+                    <div class="detail-item">
+                        <span class="detail-label">ID:</span>
+                        <span>{{ emp.empId }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Phone:</span>
+                        <span>{{ emp.phone }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Age:</span>
+                        <span>{{ emp.age }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Role:</span>
+                        <span [class]="getRoleBadgeClass(emp.roleCode)">
+                            {{ emp.roleCode }}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Dept:</span>
+                        <span class="dept-badge">{{ emp.deptCode }}</span>
+                    </div>
+                    <div class="detail-item" *ngIf="emp.address">
+                        <span class="detail-label">Address:</span>
+                        <span class="truncate-address">{{ emp.address }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status:</span>
+                        <span [class]="getStatusBadgeClass(emp.approvalStatus)">
+                            {{ emp.approvalStatus || 'UNDEFINED' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="employee-actions">
+                    <button class="action-btn" (click)="editEmployee(emp.empId!); $event.stopPropagation()">
+                        Edit
+                    </button>
+                    <button class="action-btn" (click)="$event.stopPropagation()">
+                        Payroll
+                    </button>
+                </div>
+            </div>
+        </div>
+ 
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="filteredEmployees.length > itemsPerPage">
+            <button (click)="previousPage()" [disabled]="currentPage === 1">&laquo;</button>
+            
+            <button *ngFor="let page of getPageNumbers()" 
+                    (click)="goToPage(page)"
+                    [class.active]="page === currentPage">
+                {{ page }}
+            </button>
+            
+            <button (click)="nextPage()" [disabled]="currentPage === totalPages">&raquo;</button>
+            
+            <span class="pagination-info">
+                Page {{ currentPage }} of {{ totalPages }}
+            </span>
+        </div>
+    </div>
+</div>

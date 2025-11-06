@@ -1,0 +1,253 @@
+/* Main Layout */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 250px;
+  padding: 0;
+}
+
+/* Header */
+.header {
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1.5rem 2rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.page-description {
+  color: #6c757d;
+  margin: 0.25rem 0 0 0;
+}
+
+.welcome-text {
+  font-weight: 500;
+  color: #495057;
+}
+
+/* Search Section */
+.search-section {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.search-box {
+  position: relative;
+  max-width: 400px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.search-input {
+  padding-left: 40px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.search-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.results-count {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Loading State */
+.loading-section {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  margin: 1rem 2rem;
+  border-radius: 8px;
+}
+
+.loading-text {
+  margin-top: 1rem;
+  color: #6c757d;
+}
+
+/* No Data State */
+.no-data-section {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  margin: 1rem 2rem;
+  border-radius: 8px;
+}
+
+.no-data-icon {
+  font-size: 4rem;
+  color: #28a745;
+  margin-bottom: 1rem;
+}
+
+.no-data-content h3 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.no-data-content p {
+  color: #6c757d;
+}
+
+/* Table Styles */
+.content-section {
+  padding: 0 2rem 2rem;
+}
+
+.table-card {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.employee-row:hover {
+  background-color: #f8f9fa;
+}
+
+.employee-name {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.email-cell {
+  max-width: 200px;
+}
+
+/* Badge Styles */
+.department-badge {
+  background-color: #e9ecef;
+  color: #495057;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.role-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.role-admin {
+  background-color: #dc3545;
+  color: white;
+}
+
+.role-hr {
+  background-color: #007bff;
+  color: white;
+}
+
+.role-manager {
+  background-color: #6f42c1;
+  color: white;
+}
+
+.role-employee {
+  background-color: #28a745;
+  color: white;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.action-btn {
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Pagination */
+.pagination-section {
+  padding: 1.5rem 0 0 0;
+  border-top: 1px solid #e9ecef;
+  margin-top: 1rem;
+}
+
+.pagination-info {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.page-link {
+  cursor: pointer;
+  border: 1px solid #dee2e6;
+  color: #007bff;
+  margin: 0 2px;
+  border-radius: 4px;
+}
+
+.page-item.active .page-link {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.page-link:hover {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+  }
+  
+  .header, .search-section, .content-section {
+    padding: 1rem;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+}
