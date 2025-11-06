@@ -11,6 +11,9 @@ export class HrDashboardComponent implements OnInit {
   loading = false;
   errorMessage = '';
   data: any = null;
+  employeeSearch = '';
+  empPage = 1;
+  empPageSize = 6;
   activeTab: 'employees' | 'payroll' | 'approvals' = 'employees';
   showSidebar = true;
   editOpen = false;
@@ -26,6 +29,10 @@ export class HrDashboardComponent implements OnInit {
   payrollRows: Array<{ empId: number; name: string; net: number; generatedDate: string }>|null = null;
   approvalsLoading = false;
   approvals: any[] | null = null;
+  approvalsPage = 1;
+  approvalsPageSize = 8;
+  payrollPage = 1;
+  payrollPageSize = 8;
 
   constructor(private hrService: HrService) {}
 
@@ -54,6 +61,53 @@ export class HrDashboardComponent implements OnInit {
     const a = first ? first.charAt(0) : '';
     const b = last ? last.charAt(0) : '';
     return (a + b).toUpperCase() || 'NA';
+  }
+
+  get filteredDeptEmployees(): any[] {
+    const list = this.data?.employees || [];
+    const q = (this.employeeSearch || '').toString().trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((e: any) => {
+      const name = `${e.firstName || ''} ${e.lastName || ''}`.toLowerCase();
+      const email = (e.workMail || e.personalEmail || '').toLowerCase();
+      const role = (e.roleCode || '').toLowerCase();
+      const id = String(e.empId || '').toLowerCase();
+      return name.includes(q) || email.includes(q) || role.includes(q) || id.includes(q);
+    });
+  }
+
+  private paginate<T>(arr: T[], page: number, pageSize: number): T[] {
+    const start = (page - 1) * pageSize;
+    return arr.slice(start, start + pageSize);
+  }
+
+  get pagedApprovals(): any[] {
+    const list = this.approvals || [];
+    return this.paginate(list, this.approvalsPage, this.approvalsPageSize);
+  }
+
+  get approvalsTotalPages(): number {
+    const total = (this.approvals || []).length;
+    return Math.max(1, Math.ceil(total / this.approvalsPageSize));
+  }
+
+  get pagedPayrollRows(): any[] {
+    const list = this.payrollRows || [];
+    return this.paginate(list, this.payrollPage, this.payrollPageSize);
+  }
+
+  get payrollTotalPages(): number {
+    const total = (this.payrollRows || []).length;
+    return Math.max(1, Math.ceil(total / this.payrollPageSize));
+  }
+
+  get pagedDeptEmployees(): any[] {
+    return this.paginate(this.filteredDeptEmployees, this.empPage, this.empPageSize);
+  }
+
+  get empTotalPages(): number {
+    const total = this.filteredDeptEmployees.length || 0;
+    return Math.max(1, Math.ceil(total / this.empPageSize));
   }
 
   setTab(tab: 'employees' | 'payroll' | 'approvals'): void {

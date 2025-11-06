@@ -12,6 +12,9 @@ export class AdminDashboardComponent implements OnInit {
   loading = false;
   errorMessage = '';
   data: any = null;
+  employeeSearch = '';
+  empPage = 1;
+  empPageSize = 6;
   editOpen = false;
   editLoading = false;
   editTarget: any = null;
@@ -22,9 +25,13 @@ export class AdminDashboardComponent implements OnInit {
   rolesLoading = false;
   roles: Array<{ roleCode: string; baseSalary: number }> = [];
   newRole = { roleCode: '', baseSalary: 0 };
+  rolesPage = 1;
+  rolesPageSize = 10;
   deptsLoading = false;
   departments: Array<{ deptCode: string; deptName: string; assignedHR: string }> = [];
   newDept = { deptCode: '', deptName: '', assignedHR: '' };
+  deptsPage = 1;
+  deptsPageSize = 10;
 
   constructor(private adminService: AdminService, private router: Router) {}
 
@@ -55,6 +62,35 @@ export class AdminDashboardComponent implements OnInit {
         this.errorMessage = err.error?.message || 'Failed to load Admin dashboard';
       }
     });
+  }
+
+  // Filter employees for search in Employees tab
+  get filteredEmployees(): any[] {
+    const list = this.data?.employees || [];
+    const q = (this.employeeSearch || '').toString().trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((e: any) => {
+      const name = `${e.firstName || ''} ${e.lastName || ''}`.toLowerCase();
+      const email = (e.workMail || e.personalEmail || '').toLowerCase();
+      const dept = (e.deptCode || '').toLowerCase();
+      const role = (e.roleCode || '').toLowerCase();
+      const id = String(e.empId || '').toLowerCase();
+      return name.includes(q) || email.includes(q) || dept.includes(q) || role.includes(q) || id.includes(q);
+    });
+  }
+
+  private paginate<T>(arr: T[], page: number, pageSize: number): T[] {
+    const start = (page - 1) * pageSize;
+    return arr.slice(start, start + pageSize);
+  }
+
+  get pagedEmployees(): any[] {
+    return this.paginate(this.filteredEmployees, this.empPage, this.empPageSize);
+  }
+
+  get empTotalPages(): number {
+    const total = this.filteredEmployees.length || 0;
+    return Math.max(1, Math.ceil(total / this.empPageSize));
   }
 
   getInitials(e: any): string {
@@ -152,6 +188,15 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  get pagedRoles(): any[] {
+    return this.paginate(this.roles, this.rolesPage, this.rolesPageSize);
+  }
+
+  get rolesTotalPages(): number {
+    const total = this.roles.length || 0;
+    return Math.max(1, Math.ceil(total / this.rolesPageSize));
+  }
+
   // Department management methods
   private loadDepartments(): void {
     this.deptsLoading = true;
@@ -167,6 +212,15 @@ export class AdminDashboardComponent implements OnInit {
       },
       error: () => { this.deptsLoading = false; }
     });
+  }
+
+  get pagedDepartments(): any[] {
+    return this.paginate(this.departments, this.deptsPage, this.deptsPageSize);
+  }
+
+  get deptsTotalPages(): number {
+    const total = this.departments.length || 0;
+    return Math.max(1, Math.ceil(total / this.deptsPageSize));
   }
 
   updateDepartment(d: any): void {

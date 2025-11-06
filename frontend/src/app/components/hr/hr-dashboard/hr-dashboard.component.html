@@ -50,8 +50,13 @@
             Employees in {{ data.hrDepartment }}
           </div>
           <div class="card-body">
+            <div class="row g-2 mb-3">
+              <div class="col-sm-6 col-md-5 col-lg-4">
+                <input class="form-control" placeholder="Search by name, email, ID or role" [(ngModel)]="employeeSearch">
+              </div>
+            </div>
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 g-3">
-              <div class="col" *ngFor="let e of data.employees">
+              <div class="col" *ngFor="let e of pagedDeptEmployees">
                 <div class="card h-100 border-0 shadow-sm hr-emp-card">
                   <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
@@ -89,6 +94,13 @@
                 </div>
               </div>
             </div>
+            <div class="d-flex align-items-center justify-content-between mt-3">
+              <div class="text-muted small">Page {{ empPage }} / {{ empTotalPages }}</div>
+              <div class="btn-group">
+                <button class="btn btn-outline-secondary btn-sm" [disabled]="empPage<=1" (click)="empPage = empPage - 1">Prev</button>
+                <button class="btn btn-outline-secondary btn-sm" [disabled]="empPage>=empTotalPages" (click)="empPage = empPage + 1">Next</button>
+              </div>
+            </div>
           </div>
         </div>
       </ng-container>
@@ -108,17 +120,23 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let r of payrollRows">
+                <tr *ngFor="let r of pagedPayrollRows">
                   <td>{{ r.empId }}</td>
                   <td>{{ r.name }}</td>
                   <td class="text-end">{{ formatCurrency(r.net) }}</td>
-                  <td>{{ r.generatedDate }}</td>
                   <td class="text-end">
                     <button class="btn btn-primary btn-sm" (click)="openPayroll({ empId: r.empId, firstName: r.name.split(' ')[0], lastName: r.name.split(' ').slice(1).join(' ') })">Download Slip</button>
                   </td>
                 </tr>
               </tbody>
             </table>
+            <div class="d-flex align-items-center justify-content-between mt-2">
+              <div class="text-muted small">Page {{ payrollPage }} / {{ payrollTotalPages }}</div>
+              <div class="btn-group">
+                <button class="btn btn-outline-secondary btn-sm" [disabled]="payrollPage<=1" (click)="payrollPage = payrollPage - 1">Prev</button>
+                <button class="btn btn-outline-secondary btn-sm" [disabled]="payrollPage>=payrollTotalPages" (click)="payrollPage = payrollPage + 1">Next</button>
+              </div>
+            </div>
           </div>
         </div>
       </ng-container>
@@ -140,7 +158,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let e of approvals">
+                <tr *ngFor="let e of pagedApprovals">
                   <td>{{ e.empId }}</td>
                   <td>{{ e.firstName }} {{ e.lastName }}</td>
                   <td>{{ e.personalEmail || e.workMail }}</td>
@@ -153,6 +171,13 @@
                 </tr>
               </tbody>
             </table>
+            <div class="d-flex align-items-center justify-content-between mt-2">
+              <div class="text-muted small">Page {{ approvalsPage }} / {{ approvalsTotalPages }}</div>
+              <div class="btn-group">
+                <button class="btn btn-outline-secondary btn-sm" [disabled]="approvalsPage<=1" (click)="approvalsPage = approvalsPage - 1">Prev</button>
+                <button class="btn btn-outline-secondary btn-sm" [disabled]="approvalsPage>=approvalsTotalPages" (click)="approvalsPage = approvalsPage + 1">Next</button>
+              </div>
+            </div>
           </div>
           <ng-template #noPending>
             <div class="alert alert-secondary">No pending approvals.</div>
