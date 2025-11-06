@@ -204,26 +204,7 @@ export class HrApprovalsComponent implements OnInit {
   }
 }
 
-  sendCredentials(empId: number): void {
-    this.isLoading = true;
-    
-    this.hrService.sendCredentials(empId).subscribe({
-      next: (response: HREmployeeResponse) => {
-        this.isLoading = false;
-        if (response.success) {
-          this.showSuccess(response.message || 'Credentials sent successfully!');
-          console.log(`Credentials sent for employee ${empId}:`, response);
-        } else {
-          this.showError(response.message || 'Failed to send credentials');
-        }
-      },
-      error: (error) => {
-        this.isLoading = false;
-        console.error('Error sending credentials:', error);
-        this.showError('Failed to send credentials. Please try again.');
-      }
-    });
-  }
+
 
   getRoleBadgeClass(roleCode: string | undefined): string {
     const role = roleCode?.toUpperCase();
