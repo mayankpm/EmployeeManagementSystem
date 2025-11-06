@@ -2,7 +2,7 @@
   <div class="container">
     <!-- Brand -->
     <a class="navbar-brand fw-bold" [routerLink]="getHomeLink()">
-      <i class="fas fa-users me-2"></i>Employee Portal
+      <i class="fas fa-users me-2"></i>Welcome {{ currentUser?.firstName }}!
     </a>
 
     <!-- Mobile Toggle -->
@@ -34,17 +34,9 @@
       <div class="navbar-nav ms-auto">
         <div class="nav-item dropdown">
           <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
-            <i class="fas fa-user-circle me-1"></i>
-            {{ currentUser?.firstName }} 
             <small class="badge bg-light text-dark ms-1">{{ getUserRoleDisplay() }}</small>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li>
-              <a class="dropdown-item" routerLink="/employee/profile">
-                <i class="fas fa-user-edit me-2"></i>Edit Profile
-              </a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
             <li>
               <a class="dropdown-item text-danger" href="#" (click)="logout(); $event.preventDefault()">
                 <i class="fas fa-sign-out-alt me-2"></i>Logout

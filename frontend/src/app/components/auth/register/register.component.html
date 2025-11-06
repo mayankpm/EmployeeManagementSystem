@@ -92,6 +92,56 @@
             </div>
 
             <div class="row">
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="age" class="form-label fw-semibold">Age</label>
+                  <input type="number"
+                         class="form-control"
+                         id="age"
+                         formControlName="age"
+                         placeholder="Enter age"
+                         min="18" max="100"
+                         [class.is-invalid]="age?.invalid && age?.touched">
+                  <div class="invalid-feedback d-block" *ngIf="age?.invalid && age?.touched">
+                    <span *ngIf="age?.errors?.['required']">Age is required</span>
+                    <span *ngIf="age?.errors?.['min']">Minimum age is 18</span>
+                    <span *ngIf="age?.errors?.['max']">Maximum age is 100</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="deptCode" class="form-label fw-semibold">Department</label>
+                  <select id="deptCode"
+                          class="form-select"
+                          formControlName="deptCode"
+                          [class.is-invalid]="deptCode?.invalid && deptCode?.touched">
+                    <option value="">-- Select Department --</option>
+                    <option *ngFor="let d of departmentOptions" [value]="d">{{ d }}</option>
+                  </select>
+                  <div class="invalid-feedback" *ngIf="deptCode?.errors?.['required']">
+                    Department is required
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label for="roleCode" class="form-label fw-semibold">Select Role</label>
+                  <select id="roleCode"
+                          class="form-select"
+                          formControlName="roleCode"
+                          [class.is-invalid]="roleCode?.invalid && roleCode?.touched">
+                    <option value="">-- Select Role --</option>
+                    <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
+                  </select>
+                  <div class="invalid-feedback" *ngIf="roleCode?.errors?.['required']">
+                    Role is required
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="password" class="form-label fw-semibold">Password</label>

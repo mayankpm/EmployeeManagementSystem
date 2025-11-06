@@ -88,6 +88,7 @@
 
                     <div class="d-flex gap-2">
                       <button type="button" class="btn btn-light btn-sm" (click)="openEdit(e)">Edit</button>
+                      <button type="button" class="btn btn-warning btn-sm" (click)="editPay(e)">Edit Pay</button>
                       <button type="button" class="btn btn-outline-secondary btn-sm" (click)="openPayroll(e)">Payroll</button>
                     </div>
                   </div>
@@ -195,6 +196,14 @@
       </div>
       <div class="hr-modal-body">
         <div class="mb-2">
+          <label class="form-label">First Name</label>
+          <input type="text" class="form-control" [(ngModel)]="editModel.firstName">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Last Name</label>
+          <input type="text" class="form-control" [(ngModel)]="editModel.lastName">
+        </div>
+        <div class="mb-2">
           <label class="form-label">Phone</label>
           <input type="text" class="form-control" [(ngModel)]="editModel.phone">
         </div>
@@ -207,8 +216,11 @@
           <textarea rows="2" class="form-control" [(ngModel)]="editModel.address"></textarea>
         </div>
         <div class="mb-2">
-          <label class="form-label">Role Code</label>
-          <input type="text" class="form-control" [(ngModel)]="editModel.roleCode" placeholder="e.g., L3, SDE2">
+          <label class="form-label">Role</label>
+          <select class="form-select" [(ngModel)]="editModel.roleCode">
+            <option value="">-- Select Role --</option>
+            <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
+          </select>
         </div>
         <div class="mb-2">
           <label class="form-label">Personal Email</label>
@@ -247,6 +259,64 @@
       <div class="hr-modal-footer">
         <button class="btn btn-light" (click)="closePayroll()" [disabled]="payrollLoading">Close</button>
         <button class="btn btn-primary" (click)="downloadSlip()" [disabled]="payrollLoading">Download Salary Slip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Pay Modal -->
+  <div class="hr-modal-backdrop" *ngIf="editPayOpen">
+    <div class="hr-modal">
+      <div class="hr-modal-header">
+        <div class="fw-semibold">Edit Pay - {{ editPayTarget?.firstName }} {{ editPayTarget?.lastName }}</div>
+        <button class="btn-close" (click)="closeEditPay()"></button>
+      </div>
+      <div class="hr-modal-body">
+        <div *ngIf="editPayLoading" class="alert alert-info">Loading payroll data...</div>
+        <div *ngIf="!editPayLoading">
+          <div class="mb-2">
+            <label class="form-label">Tax</label>
+            <input type="number" 
+                   class="form-control" 
+                   [(ngModel)]="editPayModel.tax" 
+                   step="0.01" 
+                   min="0"
+                   placeholder="Enter tax amount">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Allowances</label>
+            <input type="number" 
+                   class="form-control" 
+                   [(ngModel)]="editPayModel.allowances" 
+                   step="0.01" 
+                   min="0"
+                   placeholder="Enter allowances amount">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Incentive</label>
+            <input type="number" 
+                   class="form-control" 
+                   [(ngModel)]="editPayModel.incentive" 
+                   step="0.01" 
+                   min="0"
+                   placeholder="Enter incentive amount">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">CTC</label>
+            <input type="number" 
+                   class="form-control" 
+                   [(ngModel)]="editPayModel.ctc" 
+                   step="0.01" 
+                   min="0"
+                   placeholder="Enter CTC amount">
+          </div>
+        </div>
+      </div>
+      <div class="hr-modal-footer">
+        <button class="btn btn-light" (click)="closeEditPay()" [disabled]="editPaySaving">Cancel</button>
+        <button class="btn btn-primary" (click)="saveEditPay()" [disabled]="editPaySaving || editPayLoading">
+          <span *ngIf="editPaySaving" class="spinner-border spinner-border-sm me-2"></span>
+          Save Changes
+        </button>
       </div>
     </div>
   </div>

@@ -192,6 +192,51 @@ public class PayrollController {
         }
     }
 
+    // ------------------- HR: UPDATE PAYROLL -------------------
+    @PutMapping("/hr/update")
+    public ResponseEntity<?> updatePayroll(@RequestHeader("Authorization") String token,
+                                          @RequestBody Payroll payroll) {
+        try {
+            // Verify HR role
+            String roleCode = jwtUtils.extractRoleCode(token.substring(7));
+            if (!"HR".equalsIgnoreCase(roleCode)) {
+                return ResponseEntity.status(403)
+                    .body(ApiResponse.error("Access denied. HR privileges required."));
+            }
+
+            int hrEmpId = jwtUtils.extractEmpId(token.substring(7));
+            Employee loggedInHr = employeeRepo.findById(hrEmpId).orElse(null);
+            
+            if (loggedInHr == null) {
+                return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("HR user not found"));
+            }
+
+            Employee employee = employeeRepo.findById(payroll.getEmpId())
+                    .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + payroll.getEmpId()));
+
+            // Security: HR can only update payrolls of employees in same dept
+            if (!loggedInHr.getDeptCode().equalsIgnoreCase(employee.getDeptCode())) {
+                return ResponseEntity.status(403)
+                    .body(ApiResponse.error("Access denied to this employee's payroll"));
+            }
+
+            payrollService.updatePayroll(payroll);
+            return ResponseEntity.ok(ApiResponse.success("Payroll updated successfully"));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Error updating payroll: " + e.getMessage()));
+        }
+    }
+
+    // Alias to support clients using POST for updates
+    @PostMapping("/hr/update")
+    public ResponseEntity<?> updatePayrollPost(@RequestHeader("Authorization") String token,
+                                              @RequestBody Payroll payroll) {
+        return updatePayroll(token, payroll);
+    }
+
     // ------------------- EMPLOYEE: VIEW OWN PAYROLL -------------------
     @GetMapping("/employee")
     public ResponseEntity<?> viewEmployeePayroll(@RequestHeader("Authorization") String token) {

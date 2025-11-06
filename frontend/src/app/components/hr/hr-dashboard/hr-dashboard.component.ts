@@ -19,7 +19,8 @@ export class HrDashboardComponent implements OnInit {
   editOpen = false;
   editLoading = false;
   editTarget: any = null;
-  editModel: any = { phone: '', age: '', address: '', roleCode: '', personalEmail: '' };
+  editModel: any = { firstName: '', lastName: '', phone: '', age: '', address: '', roleCode: '', personalEmail: '' };
+  roleOptions: string[] = [];
 
   payrollOpen = false;
   payrollLoading = false;
@@ -27,6 +28,12 @@ export class HrDashboardComponent implements OnInit {
   payrollData: any = null;
   payrollListLoading = false;
   payrollRows: Array<{ empId: number; name: string; net: number; generatedDate: string }>|null = null;
+  
+  editPayOpen = false;
+  editPayLoading = false;
+  editPaySaving = false;
+  editPayTarget: any = null;
+  editPayModel: any = { empId: null, tax: 0, allowances: 0, incentive: 0, ctc: 0 };
   approvalsLoading = false;
   approvals: any[] | null = null;
   approvalsPage = 1;
@@ -47,6 +54,11 @@ export class HrDashboardComponent implements OnInit {
       next: (res) => {
         this.loading = false;
         this.data = res;
+        const roles = new Set<string>();
+        (res?.employees || []).forEach((e: any) => {
+          if (e?.roleCode) roles.add(String(e.roleCode));
+        });
+        this.roleOptions = Array.from(roles).sort();
       },
       error: (err) => {
         this.loading = false;
@@ -198,6 +210,8 @@ export class HrDashboardComponent implements OnInit {
   openEdit(e: any): void {
     this.editTarget = e;
     this.editModel = {
+      firstName: e.firstName || '',
+      lastName: e.lastName || '',
       phone: e.phone || '',
       age: e.age || '',
       address: e.address || '',
@@ -220,6 +234,8 @@ export class HrDashboardComponent implements OnInit {
         this.editLoading = false;
         this.editOpen = false;
         // Update local data to reflect changes immediately
+        this.editTarget.firstName = this.editModel.firstName;
+        this.editTarget.lastName = this.editModel.lastName;
         this.editTarget.phone = this.editModel.phone;
         this.editTarget.age = this.editModel.age;
         this.editTarget.address = this.editModel.address;
@@ -244,6 +260,61 @@ export class HrDashboardComponent implements OnInit {
       },
       error: () => {
         this.payrollLoading = false;
+      }
+    });
+  }
+
+  editPay(e: any): void {
+    this.editPayTarget = e;
+    this.editPayOpen = true;
+    this.editPayLoading = true;
+    this.editPayModel = { empId: e.empId, tax: 0, allowances: 0, incentive: 0, ctc: 0 };
+    
+    // Fetch current payroll data
+    this.hrService.getEmployeePayroll(e.empId).subscribe({
+      next: (res) => {
+        this.editPayLoading = false;
+        // Get the first/latest payroll record
+        const payrolls = res?.payrolls || [];
+        if (payrolls.length > 0) {
+          const latestPayroll = payrolls[0];
+          this.editPayModel = {
+            empId: e.empId,
+            tax: latestPayroll.tax || 0,
+            allowances: latestPayroll.allowances || 0,
+            incentive: latestPayroll.incentive || 0,
+            ctc: latestPayroll.ctc || 0
+          };
+        }
+      },
+      error: () => {
+        this.editPayLoading = false;
+      }
+    });
+  }
+
+  closeEditPay(): void {
+    if (this.editPaySaving) return;
+    this.editPayOpen = false;
+    this.editPayTarget = null;
+  }
+
+  saveEditPay(): void {
+    if (!this.editPayTarget) return;
+    this.editPaySaving = true;
+    this.hrService.updatePayroll(this.editPayModel).subscribe({
+      next: () => {
+        this.editPaySaving = false;
+        this.editPayOpen = false;
+        // Refresh the dashboard to show updated data
+        this.fetchDashboard();
+        // If on payroll tab, refresh that too
+        if (this.activeTab === 'payroll') {
+          this.loadPayrollOverview();
+        }
+      },
+      error: () => {
+        this.editPaySaving = false;
       }
     });
   }

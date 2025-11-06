@@ -14,6 +14,8 @@ export class RegisterComponent implements OnInit {
   loading = false;
   errorMessage = '';
   successMessage = '';
+  departmentOptions: string[] = ['PSO', 'CSO', 'R&D'];
+  roleOptions: string[] = ['SDE-1', 'SDE-2', 'SDE-3', 'M1', 'M2', 'M3', 'L1', 'L2', 'L3', 'HR']
 
   constructor(
     private formBuilder: FormBuilder,
@@ -26,6 +28,9 @@ export class RegisterComponent implements OnInit {
       personalEmail: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.required]],
       address: ['', [Validators.required]],
+      age: [null, [Validators.required, Validators.min(18), Validators.max(100)]],
+      deptCode: ['', [Validators.required]],
+      roleCode: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]]
     });
@@ -84,6 +89,9 @@ export class RegisterComponent implements OnInit {
   get personalEmail() { return this.registerForm.get('personalEmail'); }
   get phone() { return this.registerForm.get('phone'); }
   get address() { return this.registerForm.get('address'); }
+  get age() { return this.registerForm.get('age'); }
+  get deptCode() { return this.registerForm.get('deptCode'); }
+  get roleCode() { return this.registerForm.get('roleCode'); }
   get password() { return this.registerForm.get('password'); }
   get confirmPassword() { return this.registerForm.get('confirmPassword'); }
 }
