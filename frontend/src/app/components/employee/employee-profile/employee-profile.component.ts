@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { EmployeeService } from '../../../services/employee.service';
 
 @Component({
@@ -17,7 +18,8 @@ export class EmployeeProfileComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
+    private router: Router
   ) {
     this.profileForm = this.formBuilder.group({
       personalEmail: ['', [Validators.required, Validators.email]],
@@ -83,7 +85,10 @@ export class EmployeeProfileComponent implements OnInit {
           this.loading = false;
           if (response.success) {
             this.successMessage = response.message || 'Profile updated successfully!';
-            this.loadProfile(); // Reload profile to get updated data
+            // Redirect to dashboard after successful update
+            setTimeout(() => {
+              this.router.navigate(['/employee/dashboard']);
+            }, 1500); // Small delay to show success message
           } else {
             this.errorMessage = response.message;
           }
