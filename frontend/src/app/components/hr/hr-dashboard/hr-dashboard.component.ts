@@ -22,6 +22,8 @@ export class HrDashboardComponent implements OnInit {
   editOpen = false;
   editLoading = false;
   editTarget: any = null;
+  viewDetailsOpen = false;
+  viewDetailsEmployee: any = null;
   editModel: any = { firstName: '', lastName: '', phone: '', age: '', address: '', roleCode: '', personalEmail: '' };
   editForm: FormGroup;
   roleOptions: string[] = [];
@@ -354,6 +356,23 @@ export class HrDashboardComponent implements OnInit {
   get editAddress() { return this.editForm.get('address'); }
   get editRoleCode() { return this.editForm.get('roleCode'); }
   get editPersonalEmail() { return this.editForm.get('personalEmail'); }
+
+  viewEmployeeDetails(e: any): void {
+    this.viewDetailsEmployee = { ...e };
+    this.viewDetailsOpen = true;
+  }
+
+  closeViewDetails(): void {
+    this.viewDetailsOpen = false;
+    this.viewDetailsEmployee = null;
+  }
+
+  editFromViewDetails(): void {
+    if (this.viewDetailsEmployee) {
+      this.closeViewDetails();
+      this.openEdit(this.viewDetailsEmployee);
+    }
+  }
 
   openPayroll(e: any): void {
     this.payrollTarget = e;

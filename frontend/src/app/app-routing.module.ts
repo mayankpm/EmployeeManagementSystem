@@ -7,6 +7,7 @@ import { EmployeeProfileComponent } from './components/employee/employee-profile
 import { EmployeePayrollComponent } from './components/employee/employee-payroll/employee-payroll.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminDashboardComponent } from './components/admin/admin-dashboard/admin-dashboard.component';
+import { AdminAddEmployeeComponent } from './components/admin/admin-add-employee/admin-add-employee.component';
 import { HrDashboardComponent } from './components/hr/hr-dashboard/hr-dashboard.component';
 
 const routes: Routes = [
@@ -21,6 +22,12 @@ const routes: Routes = [
   {
     path: 'admin/dashboard',
     component: AdminDashboardComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN', 'ADM', 'ADMINISTRATOR'] }
+  },
+  {
+    path: 'admin/add-employee',
+    component: AdminAddEmployeeComponent,
     canActivate: [AuthGuard],
     data: { roles: ['ADMIN', 'ADM', 'ADMINISTRATOR'] }
   },

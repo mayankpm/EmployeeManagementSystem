@@ -164,7 +164,8 @@ public class EmployeeController {
         return new EmployeeSearchResultDTO(
             employee.getFirstName() + " " + employee.getLastName(),
             employee.getDeptCode() != null ? employee.getDeptCode() : "N/A",
-            employee.getWorkMail() != null ? employee.getWorkMail() : "N/A"
+            employee.getWorkMail() != null ? employee.getWorkMail() : "N/A",
+            employee.getPhone() != null ? employee.getPhone() : "N/A"
         );
     }
 }

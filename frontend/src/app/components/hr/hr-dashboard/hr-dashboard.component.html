@@ -4,7 +4,7 @@
   </div>
 
   <div class="row">
-    <div class="col-12 col-md-3 mb-3 mb-md-0" *ngIf="showSidebar">
+    <div class="col-12 col-md-2 mb-3 mb-md-0" *ngIf="showSidebar">
       <div class="list-group hr-sidenav">
         <a href="#" class="list-group-item list-group-item-action" [class.active]="isTab('employees')" (click)="setTab('employees'); $event.preventDefault()">Employees</a>
         <a href="#" class="list-group-item list-group-item-action" [class.active]="isTab('payroll')" (click)="setTab('payroll'); $event.preventDefault()">Payroll Management</a>
@@ -12,7 +12,7 @@
       </div>
     </div>
 
-    <div class="col-12" [class.col-md-9]="showSidebar" [class.col-md-12]="!showSidebar">
+    <div class="col-12" [class.col-md-10]="showSidebar" [class.col-md-12]="!showSidebar">
       <div *ngIf="loading" class="alert alert-info">Loading...</div>
       <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
@@ -57,12 +57,12 @@
             </div>
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 g-3">
               <div class="col" *ngFor="let e of pagedDeptEmployees">
-                <div class="card h-100 border-0 shadow-sm hr-emp-card">
+                <div class="card h-100 border-0 shadow-sm hr-emp-card" (click)="viewEmployeeDetails(e)" style="cursor: pointer;">
                   <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
-                      <div class="avatar-circle me-3">{{ getInitials(e) }}</div>
-                      <div>
-                        <div class="fw-semibold fs-5 lh-sm">{{ e.firstName }} {{ e.lastName }}</div>
+                      <div class="avatar-circle me-3 flex-shrink-0">{{ getInitials(e) }}</div>
+                      <div class="flex-grow-1 min-w-0">
+                        <div class="fw-semibold fs-5 lh-sm text-nowrap text-truncate" [title]="e.firstName + ' ' + e.lastName">{{ e.firstName }} {{ e.lastName }}</div>
                         <div class="text-muted small">{{ e.deptCode || data.hrDepartment }}</div>
                       </div>
                     </div>
@@ -86,7 +86,7 @@
                       <div class="col-7 text-truncate" title="{{ e.address }}">{{ e.address || '—' }}</div>
                     </div>
 
-                    <div class="d-flex gap-2 flex-nowrap align-items-center">
+                    <div class="d-flex gap-2 flex-nowrap align-items-center" (click)="$event.stopPropagation()">
                       <button type="button" class="btn btn-light btn-sm flex-shrink-0" (click)="openEdit(e)">Edit</button>
                       <button type="button" class="btn btn-warning btn-sm flex-shrink-0 text-nowrap" (click)="editPay(e)">Edit Pay</button>
                       <button type="button" class="btn btn-outline-secondary btn-sm flex-shrink-0" (click)="openPayroll(e)">Payroll</button>
@@ -375,6 +375,101 @@
           <span *ngIf="editPaySaving" class="spinner-border spinner-border-sm me-2"></span>
           Save Changes
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Employee Details Modal -->
+  <div class="hr-modal-backdrop" *ngIf="viewDetailsOpen">
+    <div class="hr-modal">
+      <div class="hr-modal-header">
+        <div class="fw-semibold">Employee Details</div>
+        <button class="btn-close" (click)="closeViewDetails()"></button>
+      </div>
+      <div class="hr-modal-body">
+        <div *ngIf="viewDetailsEmployee">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Employee ID</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.empId || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">First Name</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.firstName || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Last Name</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.lastName || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Personal Email</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.personalEmail || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Work Email</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.workMail || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Phone</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.phone || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Age</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.age || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Department</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.deptCode || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Role</label>
+                <div class="form-control-plaintext">
+                  <span class="role-badge">{{ viewDetailsEmployee.roleCode || '—' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Approval Status</label>
+                <div class="form-control-plaintext">
+                  <span class="badge" [ngClass]="{
+                    'bg-success': viewDetailsEmployee.approvalStatus === 'APPROVED',
+                    'bg-warning': viewDetailsEmployee.approvalStatus === 'PENDING',
+                    'bg-danger': viewDetailsEmployee.approvalStatus === 'REJECTED',
+                    'bg-secondary': viewDetailsEmployee.approvalStatus === 'UNDEFINED'
+                  }">{{ viewDetailsEmployee.approvalStatus || '—' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Address</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.address || '—' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hr-modal-footer">
+        <button class="btn btn-primary" (click)="closeViewDetails()">Close</button>
+        <button class="btn btn-outline-primary" (click)="editFromViewDetails()" *ngIf="viewDetailsEmployee">Edit Employee</button>
       </div>
     </div>
   </div>

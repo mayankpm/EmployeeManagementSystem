@@ -20,6 +20,8 @@ export class AdminDashboardComponent implements OnInit {
   editOpen = false;
   editLoading = false;
   editTarget: any = null;
+  viewDetailsOpen = false;
+  viewDetailsEmployee: any = null;
   editModel: any = { firstName: '', lastName: '', age: '', personalEmail: '', phone: '', address: '', roleCode: '', deptCode: '', approvalStatus: '' };
   editForm: FormGroup;
   departmentOptions: string[] = [];
@@ -261,6 +263,23 @@ export class AdminDashboardComponent implements OnInit {
   get editRoleCode() { return this.editForm.get('roleCode'); }
   get editDeptCode() { return this.editForm.get('deptCode'); }
 
+  viewEmployeeDetails(e: any): void {
+    this.viewDetailsEmployee = { ...e };
+    this.viewDetailsOpen = true;
+  }
+
+  closeViewDetails(): void {
+    this.viewDetailsOpen = false;
+    this.viewDetailsEmployee = null;
+  }
+
+  editFromViewDetails(): void {
+    if (this.viewDetailsEmployee) {
+      this.closeViewDetails();
+      this.openEdit(this.viewDetailsEmployee);
+    }
+  }
+
   // Sidebar tab helpers
   setTab(tab: 'employees' | 'roles' | 'departments'): void {
     this.activeTab = tab;
@@ -277,7 +296,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   goToAddEmployee(): void {
-    this.router.navigate(['/register']);
+    this.router.navigate(['/admin/add-employee']);
   }
 
   // Role management methods
