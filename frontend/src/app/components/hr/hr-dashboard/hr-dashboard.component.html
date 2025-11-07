@@ -165,8 +165,44 @@
                   <td>{{ e.deptCode }}</td>
                   <td>{{ e.roleCode }}</td>
                   <td class="text-end">
-                    <button class="btn btn-success btn-sm me-2" (click)="approve(e.empId)">Approve</button>
-                    <button class="btn btn-danger btn-sm" (click)="decline(e.empId)">Decline</button>
+                    <div class="d-flex flex-column align-items-end">
+                      <div class="mb-1">
+                        <button class="btn btn-success btn-sm me-2 approve-btn"
+                                [class.success]="getApproveAnimationPhase(e.empId) === 'checkmark'"
+                                (click)="approve(e.empId)"
+                                [disabled]="isApproveLoading(e.empId) || isDeclineLoading(e.empId) || isApproveSuccess(e.empId)">
+                          <span class="btn-text"
+                                [class.processing]="getApproveAnimationPhase(e.empId) === 'filling' || getApproveAnimationPhase(e.empId) === 'centered' || getApproveAnimationPhase(e.empId) === 'checkmark'">
+                            {{ getApproveAnimationPhase(e.empId) === 'processing' ? 'Processing' : 'Approve' }}
+                          </span>
+                          <div class="approve-spinner"
+                               [class.show]="getApproveAnimationPhase(e.empId) === 'processing'"
+                               [class.filled]="getApproveAnimationPhase(e.empId) === 'filling' || getApproveAnimationPhase(e.empId) === 'centered' || getApproveAnimationPhase(e.empId) === 'checkmark'"
+                               [class.centered]="getApproveAnimationPhase(e.empId) === 'centered' || getApproveAnimationPhase(e.empId) === 'checkmark'">
+                          </div>
+                          <svg class="approve-checkmark"
+                               [class.show]="getApproveAnimationPhase(e.empId) === 'checkmark'"
+                               xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <path class="checkmark-check"
+                                  [class.draw]="getApproveAnimationPhase(e.empId) === 'checkmark'"
+                                  fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                          </svg>
+                        </button>
+                        <button class="btn btn-danger btn-sm"
+                                (click)="decline(e.empId)"
+                                [disabled]="isApproveLoading(e.empId) || isDeclineLoading(e.empId)">
+                          <span class="d-flex align-items-center justify-content-center">
+                            <span class="text-center">Decline</span>
+                            <span *ngIf="isDeclineLoading(e.empId)" class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"></span>
+                          </span>
+                        </button>
+                      </div>
+                      <div *ngIf="getApprovalMessage(e.empId)?.type === 'error'" class="small">
+                        <span class="text-danger">
+                          {{ getApprovalMessage(e.empId)?.message }}
+                        </span>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -251,4 +287,3 @@
     </div>
   </div>
 </div>
-

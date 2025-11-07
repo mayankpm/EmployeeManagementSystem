@@ -80,4 +80,103 @@
   padding: 1rem;
 }
 
+/* Approve button animation styles */
+.approve-btn {
+  position: relative;
+  min-width: 120px;
+  transition: background 0.3s ease;
+  overflow: visible;
+}
+
+.approve-btn.success {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+}
+
+.btn-text {
+  display: inline-block;
+  transition: opacity 0.3s ease;
+}
+
+.btn-text.processing {
+  opacity: 0;
+}
+
+.approve-spinner {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border: 2px solid white;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.3s ease, transform 0.5s linear, left 0.5s linear, right 0.5s linear;
+  border-top-color: transparent;
+  right: 8px;
+}
+
+.approve-spinner.show {
+  transform: scale(1);
+  opacity: 1;
+  animation: spin 0.8s linear infinite;
+}
+
+.approve-spinner.filled {
+  border-top-color: white;
+  animation: none;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.approve-spinner.centered {
+  left: 50%;
+  right: auto;
+  transform: scale(1) translateX(-50%);
+  opacity: 1;
+}
+
+@keyframes spin {
+  to {
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+.approve-checkmark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+}
+
+.approve-checkmark.show {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+.checkmark-check {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke: white;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.checkmark-check.draw {
+  animation: drawCheck 0.4s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+@keyframes drawCheck {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
 

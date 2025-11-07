@@ -16,10 +16,12 @@ export class HrService {
     });
   }
 
+  // ---------------------- HR DASHBOARD ----------------------
   getDashboard(): Observable<any> {
     return this.http.get<any>(HR_API + 'dashboard', { headers: this.getAuthHeaders() });
   }
 
+  // ---------------------- EMPLOYEE MANAGEMENT ----------------------
   getEmployee(empId: number): Observable<any> {
     return this.http.get<any>(HR_API + 'employee/' + empId, { headers: this.getAuthHeaders() });
   }
@@ -28,6 +30,7 @@ export class HrService {
     return this.http.put<any>(HR_API + 'employee/' + empId, updates, { headers: this.getAuthHeaders() });
   }
 
+  // ---------------------- PAYROLL ----------------------
   getEmployeePayroll(empId: number): Observable<any> {
     return this.http.get<any>(HR_API.replace('/hr/', '/payroll/hr/employee') + `?empId=${empId}`, { headers: this.getAuthHeaders() });
   }
@@ -50,17 +53,22 @@ export class HrService {
     return this.http.get<any>(HR_API.replace('/hr/', '/payroll/hr'), { headers: this.getAuthHeaders() });
   }
 
+  // ---------------------- APPROVALS ----------------------
   getApprovals(): Observable<any[]> {
     return this.http.get<any[]>(HR_API + 'approvals', { headers: this.getAuthHeaders() });
   }
 
-  approveEmployee(empId: number): Observable<any> {
-    return this.http.post<any>(HR_API + 'approvals/' + empId + '/approve', {}, { headers: this.getAuthHeaders() });
-  }
+approveEmployee(empId: number): Observable<any> {
+  return this.http.post<any>(
+    'http://localhost:8080/api/email/hr/sendCredentials/' + empId,
+    {},
+    { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+  );
+}
+
 
   declineEmployee(empId: number): Observable<any> {
     return this.http.post<any>(HR_API + 'approvals/' + empId + '/decline', {}, { headers: this.getAuthHeaders() });
   }
+
 }
-
-

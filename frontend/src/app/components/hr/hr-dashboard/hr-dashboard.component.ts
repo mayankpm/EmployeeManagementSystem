@@ -31,6 +31,11 @@ export class HrDashboardComponent implements OnInit {
   approvals: any[] | null = null;
   approvalsPage = 1;
   approvalsPageSize = 8;
+  approveLoading = new Set<number>(); // Track loading state for approve actions
+  approveSuccess = new Set<number>(); // Track success animation state for approve actions
+  approveAnimationPhase = new Map<number, 'processing' | 'filling' | 'centered' | 'checkmark'>(); // Track animation phases
+  declineLoading = new Set<number>(); // Track loading state for decline actions
+  approvalMessages: { [key: number]: { type: 'success' | 'error', message: string } } = {}; // Track messages for individual approvals
   payrollPage = 1;
   payrollPageSize = 8;
 
@@ -110,6 +115,31 @@ export class HrDashboardComponent implements OnInit {
     return Math.max(1, Math.ceil(total / this.empPageSize));
   }
 
+  // Helper methods for approval actions
+  isApproveLoading(empId: number): boolean {
+    return this.approveLoading.has(empId);
+  }
+
+  isApproveSuccess(empId: number): boolean {
+    return this.approveSuccess.has(empId);
+  }
+
+  getApproveAnimationPhase(empId: number): 'processing' | 'filling' | 'centered' | 'checkmark' | null {
+    return this.approveAnimationPhase.get(empId) || null;
+  }
+
+  isDeclineLoading(empId: number): boolean {
+    return this.declineLoading.has(empId);
+  }
+
+  isAnyApprovalLoading(empId: number): boolean {
+    return this.isApproveLoading(empId) || this.isDeclineLoading(empId) || this.isApproveSuccess(empId);
+  }
+
+  getApprovalMessage(empId: number): { type: 'success' | 'error', message: string } | null {
+    return this.approvalMessages[empId] || null;
+  }
+
   setTab(tab: 'employees' | 'payroll' | 'approvals'): void {
     this.activeTab = tab;
     if (tab === 'payroll' && !this.payrollRows) {
@@ -176,17 +206,80 @@ export class HrDashboardComponent implements OnInit {
   }
 
   approve(empId: number): void {
+    this.approveLoading.add(empId);
+    this.approveAnimationPhase.set(empId, 'processing');
+    delete this.approvalMessages[empId]; // Clear any previous messages
+
     this.hrService.approveEmployee(empId).subscribe({
-      next: () => {
-        if (this.approvals) this.approvals = this.approvals.filter(a => a.empId !== empId);
+      next: (response) => {
+        this.approveLoading.delete(empId);
+        this.approveSuccess.add(empId);
+
+        // Start the animation sequence
+        setTimeout(() => {
+          // Phase 1: Fill the spinner and fade text
+          this.approveAnimationPhase.set(empId, 'filling');
+
+          // Phase 2: Move spinner to center
+          setTimeout(() => {
+            this.approveAnimationPhase.set(empId, 'centered');
+
+            // Phase 3: Show checkmark
+            setTimeout(() => {
+              this.approveAnimationPhase.set(empId, 'checkmark');
+
+              // Remove from approvals list after animation completes (longer delay)
+              setTimeout(() => {
+                if (this.approvals) this.approvals = this.approvals.filter(a => a.empId !== empId);
+                this.approveSuccess.delete(empId);
+                this.approveAnimationPhase.delete(empId);
+              }, 2000);
+            }, 400);
+          }, 500);
+        }, 1000);
+      },
+      error: (error) => {
+        this.approveLoading.delete(empId);
+        this.approveAnimationPhase.delete(empId);
+        this.approvalMessages[empId] = {
+          type: 'error',
+          message: error.error?.message || 'Failed to approve employee. Please try again.'
+        };
+        // Clear error message after 5 seconds
+        setTimeout(() => {
+          delete this.approvalMessages[empId];
+        }, 5000);
       }
     });
   }
 
   decline(empId: number): void {
+    this.declineLoading.add(empId);
+    delete this.approvalMessages[empId]; // Clear any previous messages
+
     this.hrService.declineEmployee(empId).subscribe({
-      next: () => {
-        if (this.approvals) this.approvals = this.approvals.filter(a => a.empId !== empId);
+      next: (response) => {
+        this.declineLoading.delete(empId);
+        this.approvalMessages[empId] = {
+          type: 'success',
+          message: response?.message || 'Employee declined successfully.'
+        };
+        // Remove from approvals list after a short delay to show success message
+        setTimeout(() => {
+          if (this.approvals) this.approvals = this.approvals.filter(a => a.empId !== empId);
+          delete this.approvalMessages[empId];
+        }, 2000);
+      },
+      error: (error) => {
+        this.declineLoading.delete(empId);
+        this.approvalMessages[empId] = {
+          type: 'error',
+          message: error.error?.message || 'Failed to decline employee. Please try again.'
+        };
+        // Clear error message after 5 seconds
+        setTimeout(() => {
+          delete this.approvalMessages[empId];
+        }, 5000);
       }
     });
   }
@@ -291,5 +384,4 @@ export class HrDashboardComponent implements OnInit {
     });
   }
 }
-
 
