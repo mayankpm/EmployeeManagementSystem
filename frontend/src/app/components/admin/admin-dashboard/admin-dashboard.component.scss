@@ -1,0 +1,354 @@
+/* Use the exact same CSS as your HR dashboard */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    background-color: #f8f9fa;
+    color: #333;
+    min-height: 100vh;
+}
+
+.container-fluid {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+    width: 250px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    padding: 25px 0;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.logo {
+    padding: 0 25px 25px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 25px;
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.nav-links {
+    flex: 1;
+}
+
+.nav-links a {
+    display: flex;
+    align-items: center;
+    padding: 12px 25px;
+    text-decoration: none;
+    color: #555;
+    transition: all 0.2s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    background-color: #f0f2f5;
+    color: #000;
+    border-left: 3px solid #333;
+}
+
+.logout-sidebar-btn {
+    margin: 20px;
+    padding: 12px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+}
+
+.logout-sidebar-btn:hover {
+    background-color: #555;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 30px;
+    margin-left: 250px;
+    overflow-y: auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.page-title h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.page-title p {
+    color: #666;
+    margin-top: 5px;
+}
+
+.logout-btn {
+    padding: 8px 16px;
+    background-color: #333;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Stats Section */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Search Container */
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.search-box {
+    display: flex;
+    width: 100%;
+    max-width: 600px;
+    position: relative;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #333;
+}
+
+.search-results-count {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Employee Cards */
+.employees-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.employee-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.employee-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.employee-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.employee-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-weight: 600;
+    color: #555;
+}
+
+.employee-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.employee-info p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.employee-details {
+    margin-bottom: 15px;
+}
+
+.detail-item {
+    display: flex;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.detail-label {
+    color: #777;
+    width: 80px;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.role-admin {
+    background-color: #ffe6e6;
+    color: #d63031;
+}
+
+.role-hr {
+    background-color: #e6f3ff;
+    color: #0984e3;
+}
+
+.role-employee {
+    background-color: #e6ffe6;
+    color: #00b894;
+}
+
+.employee-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.action-btn {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: #333;
+    display: inline-block;
+}
+
+.action-btn:hover {
+    background-color: #f8f9fa;
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    grid-column: 1 / -1;
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    grid-column: 1 / -1;
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination button {
+    padding: 8px 14px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #f0f2f5;
+}
+
+.pagination button.active {
+    background-color: #333;
+    color: #fff;
+    border-color: #333;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0 15px;
+}

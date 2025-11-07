@@ -1,0 +1,142 @@
+<div class="container-fluid">
+    <!-- Sidebar Navigation -->
+   <app-admin-sidebar [currentUser]="currentUser" [activeRoute]="activeRoute"></app-admin-sidebar>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <div class="page-title">
+                <h1>Admin Dashboard</h1>
+                <p>Manage employees, departments, and system configuration</p>
+            </div>
+            <a routerLink="/login" class="logout-btn">Logout</a>
+        </div>
+        
+        <!-- Stats Section -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.totalEmployees }}</div>
+                <div class="stat-label">Total Employees</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.totalDepartments }}</div>
+                <div class="stat-label">Departments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.totalRoles }}</div>
+                <div class="stat-label">Roles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.pendingApprovals }}</div>
+                <div class="stat-label">Pending Approvals</div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="stats-container">
+            <div class="stat-card" style="cursor: pointer;" routerLink="/admin/roles">
+                <div class="stat-number">📊</div>
+                <div class="stat-label">Manage Roles</div>
+            </div>
+            <div class="stat-card" style="cursor: pointer;" routerLink="/admin/departments">
+                <div class="stat-number">🏢</div>
+                <div class="stat-label">Manage Departments</div>
+            </div>
+            <div class="stat-card" style="cursor: pointer;" routerLink="/admin/employees">
+                <div class="stat-number">👥</div>
+                <div class="stat-label">Manage Employees</div>
+            </div>
+            <div class="stat-card" style="cursor: pointer;" routerLink="/admin/reports">
+                <div class="stat-number">📈</div>
+                <div class="stat-label">View Reports</div>
+            </div>
+        </div>
+        
+        <!-- Search -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" 
+                       class="search-input" 
+                       [(ngModel)]="searchTerm" 
+                       (input)="onSearch()"
+                       placeholder="Search employees by name, email, or role...">
+            </div>
+        </div>
+        
+        <!-- Search Results Count -->
+        <div class="search-results-count" *ngIf="filteredEmployees.length > 0">
+            Showing {{ paginatedEmployees.length }} of {{ filteredEmployees.length }} employees
+        </div>
+        
+        <!-- Employee Cards -->
+        <div class="employees-grid">
+            <div *ngFor="let emp of paginatedEmployees" 
+                 class="employee-card" 
+                 (click)="viewEmployee(emp.empId)">
+                <div class="employee-header">
+                    <div class="employee-avatar">
+                        {{ emp.firstName.charAt(0) }}{{ emp.lastName.charAt(0) }}
+                    </div>
+                    <div class="employee-info">
+                        <h3>{{ emp.firstName }} {{ emp.lastName }}</h3>
+                        <p>{{ emp.personalEmail }}</p>
+                    </div>
+                </div>
+                
+                <div class="employee-details">
+                    <div class="detail-item">
+                        <span class="detail-label">ID:</span>
+                        <span>{{ emp.empId }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Phone:</span>
+                        <span>{{ emp.phone }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Age:</span>
+                        <span>{{ emp.age }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Role:</span>
+                        <span class="role-badge" [ngClass]="getRoleBadgeClass(emp.roleCode)">
+                            {{ emp.roleCode }}
+                        </span>
+                    </div>
+                    <div class="detail-item" *ngIf="emp.address">
+                        <span class="detail-label">Address:</span>
+                        <span>{{ emp.address }}</span>
+                    </div>
+                </div>
+                
+                <div class="employee-actions">
+                    <button class="action-btn" (click)="editEmployee(emp.empId, $event)">Edit</button>
+                    <button class="action-btn" (click)="managePayroll(emp.empId, $event)">Payroll</button>
+                </div>
+            </div>
+            
+            <div *ngIf="filteredEmployees.length === 0 && searchTerm" class="no-results">
+                <h3>No employees found</h3>
+                <p>No employees match your search for "{{ searchTerm }}"</p>
+                <p style="margin-top: 10px; font-size: 0.9rem;">Try searching with different keywords</p>
+            </div>
+            
+            <div *ngIf="filteredEmployees.length === 0 && !searchTerm" class="no-data">
+                <h3>No employees found</h3>
+                <p>No employee records available at this time</p>
+            </div>
+        </div>
+ 
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="totalPages > 1">
+            <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">&laquo;</button>
+            
+            <button *ngFor="let page of [].constructor(totalPages); let i = index"
+                    (click)="goToPage(i + 1)"
+                    [class.active]="currentPage === i + 1">
+                {{ i + 1 }}
+            </button>
+            
+            <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">&raquo;</button>
+        </div>
+    </div>
+</div>

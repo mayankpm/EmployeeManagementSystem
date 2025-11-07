@@ -1,0 +1,24 @@
+<div class="sidebar">
+    <div class="logo">
+        <h1>Admin Panel</h1>
+    </div>
+    
+    <div class="nav-links">
+        <a [routerLink]="['/admin/dashboard']" 
+           [class.active]="isActive('dashboard')">
+            Employees
+        </a>
+        <a [routerLink]="['/admin/roles']" 
+           [class.active]="isActive('roles')">
+            Edit Role
+        </a>
+        <a [routerLink]="['/admin/departments']" 
+           [class.active]="isActive('departments')">
+            Edit Department
+        </a>
+    </div>
+    
+    <button class="add-employee-btn" (click)="addNewEmployee()">
+        + Add New Employee
+    </button>
+</div>

@@ -68,11 +68,9 @@ export class LoginComponent {
       // Redirect HR users to HR dashboard
       this.router.navigate(['/hr/dashboard']);
     } else if (role.startsWith('ADM')) {
-      // For now, redirect admin to HR dashboard (you can create admin dashboard later)
-      this.router.navigate(['/hr/dashboard']);
+      this.router.navigate(['/admin/dashboard']);
     } else {
-      // For other roles (employees), redirect to HR dashboard for now
-      // You can create employee dashboard later
+      
       this.router.navigate(['/hr/dashboard']);
     }
   }

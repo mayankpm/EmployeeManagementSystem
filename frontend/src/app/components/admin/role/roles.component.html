@@ -1,0 +1,83 @@
+<div class="container-fluid">
+    <div class="sidebar">
+        <div>
+            <div class="logo"><h1>Admin Panel</h1></div>
+            <div class="nav-links">
+                <a routerLink="/admin/dashboard">Employees</a>
+                <a routerLink="/admin/roles" class="active">Edit Role</a>
+                <a routerLink="/admin/departments">Edit Department</a>
+            </div>
+        </div>
+        <button class="add-employee-btn" routerLink="/register">
+            + Add New Employee
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+        <div class="page-header">
+            <div>
+                <h2>Role Management</h2>
+                <div class="muted">Manage base salaries for each role</div>
+            </div>
+            <a routerLink="/login" class="logout-btn">Logout</a>
+        </div>
+
+        <!-- Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Role Code</th>
+                    <th>Base Salary (in Lakhs)</th>
+                    <th style="text-align:center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let role of roles">
+                    <td>{{ role.roleCode }}</td>
+                    <td>
+                        <div style="display:inline;">
+                            <input type="number" 
+                                   [(ngModel)]="editingRole[role.roleCode]" 
+                                   step="0.01" 
+                                   required
+                                   style="margin-right: 8px;">
+                            <button type="button" 
+                                    class="btn edit" 
+                                    (click)="updateRole(role.roleCode)">
+                                Update
+                            </button>
+                        </div>
+                    </td>
+                    <td style="text-align:center;">
+                        <button class="btn delete" 
+                                (click)="deleteRole(role.roleCode)">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+                <tr *ngIf="roles.length === 0">
+                    <td colspan="3" style="text-align: center; color: #6b7280;">
+                        No roles found
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Add Role -->
+        <form class="add-form" (ngSubmit)="addRole()">
+            <input type="text" 
+                   [(ngModel)]="newRole.roleCode" 
+                   name="roleCode" 
+                   placeholder="Role Code" 
+                   required>
+            <input type="number" 
+                   [(ngModel)]="newRole.baseSalary" 
+                   name="baseSalary" 
+                   step="0.01" 
+                   placeholder="Base Salary" 
+                   required>
+            <button type="submit" class="btn-add">Add Role</button>
+        </form>
+    </div>
+</div>
