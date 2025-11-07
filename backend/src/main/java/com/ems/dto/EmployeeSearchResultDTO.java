@@ -4,14 +4,16 @@ public class EmployeeSearchResultDTO {
     private String name;
     private String department;
     private String workEmail;
+    private String phone;
 
     // Constructors
     public EmployeeSearchResultDTO() {}
 
-    public EmployeeSearchResultDTO(String name, String department, String workEmail) {
+    public EmployeeSearchResultDTO(String name, String department, String workEmail, String phone) {
         this.name = name;
         this.department = department;
         this.workEmail = workEmail;
+        this.phone = phone;
     }
 
     // Getters and Setters
@@ -37,5 +39,13 @@ public class EmployeeSearchResultDTO {
 
     public void setWorkEmail(String workEmail) {
         this.workEmail = workEmail;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

@@ -5,7 +5,7 @@
   <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
   <div class="row">
-    <div class="col-12 col-md-3 mb-3 mb-md-0">
+    <div class="col-12 col-md-2 mb-3 mb-md-0">
       <div class="list-group admin-sidenav">
         <a href="#" class="list-group-item list-group-item-action" [class.active]="isTab('employees')" (click)="setTab('employees'); $event.preventDefault()">Employees</a>
         <a href="#" class="list-group-item list-group-item-action" [class.active]="isTab('roles')" (click)="setTab('roles'); $event.preventDefault()">Edit Role</a>
@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <div class="col-12 col-md-9">
+    <div class="col-12 col-md-10">
       <ng-container *ngIf="data && isTab('employees')">
         <div class="row g-3 mb-3">
       <div class="col-md-3">
@@ -63,21 +63,21 @@
             </div>
             <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
               <div class="col" *ngFor="let e of pagedEmployees">
-                <div class="card h-100 border-0 shadow-sm admin-emp-card">
+                <div class="card h-100 border-0 shadow-sm admin-emp-card" (click)="viewEmployeeDetails(e)" style="cursor: pointer;">
                   <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
-                      <div class="avatar-circle me-3">{{ getInitials(e) }}</div>
-                      <div>
-                        <div class="fw-semibold fs-5 lh-sm">{{ e.firstName }} {{ e.lastName }}</div>
+                      <div class="avatar-circle me-3 flex-shrink-0">{{ getInitials(e) }}</div>
+                      <div class="flex-grow-1 min-w-0">
+                        <div class="fw-semibold fs-5 lh-sm text-nowrap text-truncate" [title]="e.firstName + ' ' + e.lastName">{{ e.firstName }} {{ e.lastName }}</div>
                         <div class="text-muted small">{{ e.deptCode }}</div>
                       </div>
-                      <span class="ms-auto role-badge">{{ e.roleCode || '—' }}</span>
+                      <span class="ms-auto role-badge flex-shrink-0">{{ e.roleCode || '—' }}</span>
                     </div>
                     <div class="small text-muted mb-2">
                       <div>Emp ID: <span class="text-dark">{{ e.empId }}</span></div>
                       <div>Email: <span class="text-dark">{{ e.workMail }}</span></div>
                     </div>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2" (click)="$event.stopPropagation()">
                       <button class="btn btn-light btn-sm" (click)="openEdit(e)">Edit</button>
                       <button class="btn btn-outline-danger btn-sm" (click)="deleteEmployee(e.empId)">Delete</button>
                     </div>
@@ -216,53 +216,211 @@
         <button class="btn-close" (click)="closeEdit()"></button>
       </div>
       <div class="admin-modal-body">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">First Name <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" [(ngModel)]="editModel.firstName">
+        <form [formGroup]="editForm">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">First Name <span class="text-danger">*</span></label>
+              <input type="text" 
+                     class="form-control" 
+                     formControlName="firstName"
+                     [class.is-invalid]="editFirstName?.invalid && editFirstName?.touched">
+              <div class="invalid-feedback" *ngIf="editFirstName?.errors?.['required']">
+                First name is required
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Last Name <span class="text-danger">*</span></label>
+              <input type="text" 
+                     class="form-control" 
+                     formControlName="lastName"
+                     [class.is-invalid]="editLastName?.invalid && editLastName?.touched">
+              <div class="invalid-feedback" *ngIf="editLastName?.errors?.['required']">
+                Last name is required
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Age <span class="text-danger">*</span></label>
+              <input type="number" 
+                     class="form-control" 
+                     formControlName="age"
+                     [class.is-invalid]="editAge?.invalid && editAge?.touched">
+              <div class="invalid-feedback" *ngIf="editAge?.errors?.['required']">
+                Age is required
+              </div>
+              <div class="invalid-feedback" *ngIf="editAge?.errors?.['min']">
+                Age must be at least 18
+              </div>
+              <div class="invalid-feedback" *ngIf="editAge?.errors?.['max']">
+                Age cannot exceed 100
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Personal Email <span class="text-danger">*</span></label>
+              <input type="email" 
+                     class="form-control" 
+                     formControlName="personalEmail"
+                     [class.is-invalid]="editPersonalEmail?.invalid && editPersonalEmail?.touched">
+              <div class="invalid-feedback" *ngIf="editPersonalEmail?.errors?.['required']">
+                Personal email is required
+              </div>
+              <div class="invalid-feedback" *ngIf="editPersonalEmail?.errors?.['email']">
+                Please enter a valid email address
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone <span class="text-danger">*</span></label>
+              <input type="tel" 
+                     class="form-control" 
+                     formControlName="phone"
+                     placeholder="e.g., 9876543210"
+                     maxlength="10"
+                     (input)="onPhoneInput($event)"
+                     [class.is-invalid]="editPhone?.invalid && editPhone?.touched">
+              <div class="invalid-feedback" *ngIf="editPhone?.errors?.['required']">
+                Phone number is required
+              </div>
+              <div class="invalid-feedback" *ngIf="editPhone?.errors?.['pattern']">
+                {{ editPhone?.errors?.['pattern']?.message || 'Phone number must have exactly 10 digits' }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Role <span class="text-danger">*</span></label>
+              <select class="form-select" 
+                      formControlName="roleCode"
+                      [class.is-invalid]="editRoleCode?.invalid && editRoleCode?.touched">
+                <option value="" disabled selected>Select Role</option>
+                <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="editRoleCode?.errors?.['required']">
+                Role is required
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Department <span class="text-danger">*</span></label>
+              <select class="form-select" 
+                      formControlName="deptCode"
+                      [class.is-invalid]="editDeptCode?.invalid && editDeptCode?.touched">
+                <option value="" disabled selected>Select Department</option>
+                <option *ngFor="let d of departmentOptions" [value]="d">{{ d }}</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="editDeptCode?.errors?.['required']">
+                Department is required
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Address <span class="text-danger">*</span></label>
+              <input type="text" 
+                     class="form-control" 
+                     formControlName="address"
+                     [class.is-invalid]="editAddress?.invalid && editAddress?.touched">
+              <div class="invalid-feedback" *ngIf="editAddress?.errors?.['required']">
+                Address is required
+              </div>
+            </div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Last Name <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" [(ngModel)]="editModel.lastName">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Age <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" [(ngModel)]="editModel.age">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Personal Email <span class="text-danger">*</span></label>
-            <input type="email" class="form-control" [(ngModel)]="editModel.personalEmail">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Phone</label>
-            <input type="text" class="form-control" [(ngModel)]="editModel.phone">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Role <span class="text-danger">*</span></label>
-            <select class="form-select" [(ngModel)]="editModel.roleCode">
-              <option value="" disabled selected>Select Role</option>
-              <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Department <span class="text-danger">*</span></label>
-            <select class="form-select" [(ngModel)]="editModel.deptCode">
-              <option value="" disabled selected>Select Department</option>
-              <option *ngFor="let d of departmentOptions" [value]="d">{{ d }}</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Address</label>
-            <input type="text" class="form-control" [(ngModel)]="editModel.address">
+        </form>
+      </div>
+      <div class="admin-modal-footer">
+        <button class="btn btn-light" (click)="closeEdit()" [disabled]="editLoading">Cancel</button>
+        <button class="btn btn-primary" (click)="saveEdit()" [disabled]="editLoading || !editForm.valid">
+          <span *ngIf="editLoading" class="spinner-border spinner-border-sm me-2"></span>
+          Update Employee
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Employee Details Modal -->
+  <div class="admin-modal-backdrop" *ngIf="viewDetailsOpen">
+    <div class="admin-modal">
+      <div class="admin-modal-header">
+        <div class="fw-semibold">Employee Details</div>
+        <button class="btn-close" (click)="closeViewDetails()"></button>
+      </div>
+      <div class="admin-modal-body">
+        <div *ngIf="viewDetailsEmployee">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Employee ID</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.empId || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">First Name</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.firstName || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Last Name</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.lastName || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Personal Email</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.personalEmail || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Work Email</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.workMail || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Phone</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.phone || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Age</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.age || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Department</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.deptCode || '—' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Role</label>
+                <div class="form-control-plaintext">
+                  <span class="role-badge">{{ viewDetailsEmployee.roleCode || '—' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Approval Status</label>
+                <div class="form-control-plaintext">
+                  <span class="badge" [ngClass]="{
+                    'bg-success': viewDetailsEmployee.approvalStatus === 'APPROVED',
+                    'bg-warning': viewDetailsEmployee.approvalStatus === 'PENDING',
+                    'bg-danger': viewDetailsEmployee.approvalStatus === 'REJECTED',
+                    'bg-secondary': viewDetailsEmployee.approvalStatus === 'UNDEFINED'
+                  }">{{ viewDetailsEmployee.approvalStatus || '—' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Address</label>
+                <div class="form-control-plaintext">{{ viewDetailsEmployee.address || '—' }}</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       <div class="admin-modal-footer">
-        <button class="btn btn-light" (click)="closeEdit()" [disabled]="editLoading">Cancel</button>
-        <button class="btn btn-primary" (click)="saveEdit()" [disabled]="editLoading">
-          <span *ngIf="editLoading" class="spinner-border spinner-border-sm me-2"></span>
-          Update Employee
-        </button>
+        <button class="btn btn-primary" (click)="closeViewDetails()">Close</button>
+        <button class="btn btn-outline-primary" (click)="editFromViewDetails()" *ngIf="viewDetailsEmployee">Edit Employee</button>
       </div>
     </div>
   </div>

@@ -1,36 +1,15 @@
-<div class="register-page-wrapper">
-  <div class="row min-vh-100 g-0">
-    <!-- Left Column - Image with Welcome Message -->
-    <div class="col-lg-6 d-none d-lg-flex register-image-column">
-      <div class="register-image-wrapper">
-        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1920&h=1080&fit=crop&q=80" 
-             alt="Team collaboration" 
-             class="register-image">
-        <div class="welcome-overlay">
-          <div class="welcome-content">
-            <i class="fas fa-user-plus welcome-icon"></i>
-            <h1 class="welcome-title">Join Our Team!</h1>
-            <p class="welcome-subtitle">Start your journey with us today</p>
-            <p class="welcome-description">Create your account to access employee resources, manage your profile, and connect with your colleagues. Get started in just a few simple steps.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Right Column - Registration Form -->
-    <div class="col-lg-6 register-form-column">
-      <div class="register-form-container">
-        <div class="d-flex align-items-center justify-content-center min-vh-100 py-5">
-          <div class="w-100" style="max-width: 550px;">
-            <div class="card shadow-lg border-0">
-        <div class="card-header text-center py-4" style="background: linear-gradient(135deg, rgba(200, 200, 200, 0.3) 0%, rgba(220, 220, 220, 0.3) 100%); color: #333;">
+<div class="container-fluid bg-light" style="min-height: 100vh;">
+  <div class="row min-vh-100 justify-content-center align-items-center py-5">
+    <div class="col-md-6">
+      <div class="card shadow-lg border-0">
+        <div class="card-header text-center py-4">
           <h3 class="mb-0">
-            <i class="fas fa-user-plus me-2"></i>Create Account
+            <i class="fas fa-user-plus me-2"></i>Add New Employee
           </h3>
-          <p class="mb-0 mt-2">Join our employee portal</p>
+          <p class="mb-0 mt-2 text-muted">Create a new employee account</p>
         </div>
         <div class="card-body p-4">
-          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+          <form [formGroup]="addEmployeeForm" (ngSubmit)="onSubmit()" novalidate>
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
@@ -72,7 +51,7 @@
                        class="form-control" 
                        id="personalEmail"
                        formControlName="personalEmail"
-                       placeholder="Enter your personal email"
+                       placeholder="Enter personal email"
                        [class.is-invalid]="personalEmail?.invalid && personalEmail?.touched">
               </div>
               <div class="invalid-feedback d-block" *ngIf="personalEmail?.invalid && personalEmail?.touched">
@@ -91,16 +70,16 @@
                        class="form-control" 
                        id="phone"
                        formControlName="phone"
-                       placeholder="Enter 10-digit phone number"
+                       placeholder="Enter phone number"
                        maxlength="10"
                        (input)="onPhoneInput($event)"
                        [class.is-invalid]="phone?.invalid && phone?.touched">
               </div>
-              <div class="invalid-feedback d-block" *ngIf="phone?.invalid && phone?.touched">
-                <span *ngIf="phone?.errors?.['required']">Phone number is required</span>
-                <span *ngIf="phone?.errors?.['phoneInvalid']">
-                  {{ phone?.errors?.['message'] || 'Phone number must have exactly 10 digits' }}
-                </span>
+              <div class="invalid-feedback" *ngIf="phone?.errors?.['required']">
+                Phone number is required
+              </div>
+              <div class="invalid-feedback" *ngIf="phone?.errors?.['pattern']">
+                Phone number must have exactly 10 digits
               </div>
             </div>
 
@@ -109,7 +88,7 @@
               <textarea class="form-control" 
                         id="address"
                         formControlName="address"
-                        placeholder="Enter your address"
+                        placeholder="Enter address"
                         rows="3"
                         [class.is-invalid]="address?.invalid && address?.touched"></textarea>
               <div class="invalid-feedback" *ngIf="address?.errors?.['required']">
@@ -130,9 +109,8 @@
                          [class.is-invalid]="age?.invalid && age?.touched">
                   <div class="invalid-feedback d-block" *ngIf="age?.invalid && age?.touched">
                     <span *ngIf="age?.errors?.['required']">Age is required</span>
-                    <span *ngIf="age?.errors?.['ageInvalid']">
-                      {{ age?.errors?.['message'] || 'Age must be between 18 and 100' }}
-                    </span>
+                    <span *ngIf="age?.errors?.['min']">Minimum age is 18</span>
+                    <span *ngIf="age?.errors?.['max']">Maximum age is 100</span>
                   </div>
                 </div>
               </div>
@@ -170,18 +148,18 @@
 
             <div class="d-grid gap-2">
               <button type="submit" 
-                      class="btn btn-success btn-lg" 
-                      [disabled]="!registerForm.valid || loading">
+                      class="btn btn-primary btn-lg" 
+                      [disabled]="!addEmployeeForm.valid || loading">
                 <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
                 <i class="fas fa-user-plus me-2" *ngIf="!loading"></i>
-                {{ loading ? 'Registering...' : 'Create Account' }}
+                {{ loading ? 'Adding Employee...' : 'Add Employee' }}
               </button>
-            </div>
-
-            <div class="text-center mt-3">
-              <p class="mb-0">Already have an account?
-                <a routerLink="/login" class="text-decoration-none fw-semibold" style="color: #808080;">Login here</a>
-              </p>
+              <button type="button" 
+                      class="btn btn-outline-secondary btn-lg" 
+                      (click)="goBack()"
+                      [disabled]="loading">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+              </button>
             </div>
           </form>
 
@@ -194,9 +172,6 @@
           <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
             <i class="fas fa-check-circle me-2"></i>
             {{ successMessage }}
-            <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
-          </div>
-            </div>
           </div>
         </div>
       </div>

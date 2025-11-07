@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { HrService } from '../../../services/hr.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-hr-dashboard',
@@ -19,7 +22,11 @@ export class HrDashboardComponent implements OnInit {
   editOpen = false;
   editLoading = false;
   editTarget: any = null;
-  editModel: any = { phone: '', age: '', address: '', roleCode: '', personalEmail: '' };
+  viewDetailsOpen = false;
+  viewDetailsEmployee: any = null;
+  editModel: any = { firstName: '', lastName: '', phone: '', age: '', address: '', roleCode: '', personalEmail: '' };
+  editForm: FormGroup;
+  roleOptions: string[] = [];
 
   payrollOpen = false;
   payrollLoading = false;
@@ -27,6 +34,12 @@ export class HrDashboardComponent implements OnInit {
   payrollData: any = null;
   payrollListLoading = false;
   payrollRows: Array<{ empId: number; name: string; net: number; generatedDate: string }>|null = null;
+  
+  editPayOpen = false;
+  editPayLoading = false;
+  editPaySaving = false;
+  editPayTarget: any = null;
+  editPayModel: any = { empId: null, tax: 0, allowances: 0, incentive: 0, ctc: 0 };
   approvalsLoading = false;
   approvals: any[] | null = null;
   approvalsPage = 1;
@@ -39,22 +52,73 @@ export class HrDashboardComponent implements OnInit {
   payrollPage = 1;
   payrollPageSize = 8;
 
-  constructor(private hrService: HrService) {}
+  constructor(
+    private hrService: HrService,
+    private router: Router,
+    private authService: AuthService,
+    private formBuilder: FormBuilder
+  ) {
+    // Initialize edit form with validation
+    this.editForm = this.formBuilder.group({
+      firstName: ['', [Validators.required]],
+      lastName: ['', [Validators.required]],
+      phone: ['', [Validators.required, this.phoneValidator]],
+      age: ['', [Validators.required, Validators.min(18), Validators.max(100)]],
+      address: ['', [Validators.required]],
+      roleCode: ['', [Validators.required]],
+      personalEmail: ['', [Validators.required, Validators.email]]
+    });
+  }
 
   ngOnInit(): void {
+    // Check authentication before loading dashboard
+    this.checkAuthAndLoad();
+  }
+
+  private checkAuthAndLoad(): void {
+    // Aggressively check authentication
+    const token = this.authService.getToken();
+    const user = this.authService.getUser();
+    
+    if (!token || !user || !this.authService.isLoggedIn()) {
+      sessionStorage.clear();
+      this.router.navigate(['/login'], { replaceUrl: true });
+      return;
+    }
     this.fetchDashboard();
   }
 
   fetchDashboard(): void {
+    // Triple-check authentication before making API call
+    const token = this.authService.getToken();
+    const user = this.authService.getUser();
+    
+    if (!token || !user || !this.authService.isLoggedIn()) {
+      sessionStorage.clear();
+      this.router.navigate(['/login'], { replaceUrl: true });
+      return;
+    }
+
     this.loading = true;
     this.errorMessage = '';
     this.hrService.getDashboard().subscribe({
       next: (res) => {
         this.loading = false;
         this.data = res;
+        const roles = new Set<string>();
+        (res?.employees || []).forEach((e: any) => {
+          if (e?.roleCode) roles.add(String(e.roleCode));
+        });
+        this.roleOptions = Array.from(roles).sort();
       },
       error: (err) => {
         this.loading = false;
+        // If 401 or 403, authentication failed - redirect to login
+        if (err.status === 401 || err.status === 403) {
+          sessionStorage.clear();
+          this.router.navigate(['/login'], { replaceUrl: true });
+          return;
+        }
         this.errorMessage = err.error?.message || 'Failed to load HR dashboard';
       }
     });
@@ -288,41 +352,119 @@ export class HrDashboardComponent implements OnInit {
     this.showSidebar = !this.showSidebar;
   }
 
+  /**
+   * Custom validator for phone numbers - exactly 10 digits
+   */
+  phoneValidator = (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null; // Let required validator handle empty values
+    }
+
+    const phoneValue = control.value.toString().trim();
+    const digitsOnly = phoneValue.replace(/[\s\-\(\)\+\.]/g, '');
+    
+    if (!/^\d+$/.test(digitsOnly)) {
+      return { pattern: { message: 'Phone number must contain only numbers' } };
+    }
+    
+    if (digitsOnly.length !== 10) {
+      return { pattern: { message: 'Phone number must have exactly 10 digits' } };
+    }
+    
+    return null;
+  }
+
   openEdit(e: any): void {
     this.editTarget = e;
-    this.editModel = {
+    // Populate form with employee data
+    this.editForm.patchValue({
+      firstName: e.firstName || '',
+      lastName: e.lastName || '',
       phone: e.phone || '',
       age: e.age || '',
       address: e.address || '',
       roleCode: e.roleCode || '',
       personalEmail: e.personalEmail || e.workMail || ''
-    };
+    });
     this.editOpen = true;
   }
 
   closeEdit(): void {
     if (this.editLoading) return;
     this.editOpen = false;
+    this.editForm.reset();
   }
 
   saveEdit(): void {
     if (!this.editTarget) return;
+    
+    // Mark all fields as touched to show validation errors
+    if (!this.editForm.valid) {
+      Object.keys(this.editForm.controls).forEach(key => {
+        this.editForm.get(key)?.markAsTouched();
+      });
+      return;
+    }
+    
     this.editLoading = true;
-    this.hrService.updateEmployee(this.editTarget.empId, this.editModel).subscribe({
+    const formData = this.editForm.value;
+    
+    this.hrService.updateEmployee(this.editTarget.empId, formData).subscribe({
       next: (res) => {
         this.editLoading = false;
         this.editOpen = false;
         // Update local data to reflect changes immediately
-        this.editTarget.phone = this.editModel.phone;
-        this.editTarget.age = this.editModel.age;
-        this.editTarget.address = this.editModel.address;
-        this.editTarget.roleCode = this.editModel.roleCode;
-        this.editTarget.personalEmail = this.editModel.personalEmail;
+        this.editTarget.firstName = formData.firstName;
+        this.editTarget.lastName = formData.lastName;
+        this.editTarget.phone = formData.phone;
+        this.editTarget.age = formData.age;
+        this.editTarget.address = formData.address;
+        this.editTarget.roleCode = formData.roleCode;
+        this.editTarget.personalEmail = formData.personalEmail;
+        this.editForm.reset();
       },
       error: () => {
         this.editLoading = false;
       }
     });
+  }
+
+  /**
+   * Handle phone input to restrict to digits only and limit to 10 digits
+   */
+  onPhoneInput(event: any): void {
+    let value = event.target.value;
+    value = value.replace(/\D/g, '');
+    if (value.length > 10) {
+      value = value.substring(0, 10);
+    }
+    this.editForm.patchValue({ phone: value }, { emitEvent: false });
+  }
+
+  // Getters for form controls
+  get editFirstName() { return this.editForm.get('firstName'); }
+  get editLastName() { return this.editForm.get('lastName'); }
+  get editPhone() { return this.editForm.get('phone'); }
+  get editAge() { return this.editForm.get('age'); }
+  get editAddress() { return this.editForm.get('address'); }
+  get editRoleCode() { return this.editForm.get('roleCode'); }
+  get editPersonalEmail() { return this.editForm.get('personalEmail'); }
+
+  viewEmployeeDetails(e: any): void {
+    this.viewDetailsEmployee = { ...e };
+    this.viewDetailsOpen = true;
+  }
+
+  closeViewDetails(): void {
+    this.viewDetailsOpen = false;
+    this.viewDetailsEmployee = null;
+  }
+
+  editFromViewDetails(): void {
+    if (this.viewDetailsEmployee) {
+      this.closeViewDetails();
+      this.openEdit(this.viewDetailsEmployee);
+    }
   }
 
   openPayroll(e: any): void {
@@ -337,6 +479,61 @@ export class HrDashboardComponent implements OnInit {
       },
       error: () => {
         this.payrollLoading = false;
+      }
+    });
+  }
+
+  editPay(e: any): void {
+    this.editPayTarget = e;
+    this.editPayOpen = true;
+    this.editPayLoading = true;
+    this.editPayModel = { empId: e.empId, tax: 0, allowances: 0, incentive: 0, ctc: 0 };
+    
+    // Fetch current payroll data
+    this.hrService.getEmployeePayroll(e.empId).subscribe({
+      next: (res) => {
+        this.editPayLoading = false;
+        // Get the first/latest payroll record
+        const payrolls = res?.payrolls || [];
+        if (payrolls.length > 0) {
+          const latestPayroll = payrolls[0];
+          this.editPayModel = {
+            empId: e.empId,
+            tax: latestPayroll.tax || 0,
+            allowances: latestPayroll.allowances || 0,
+            incentive: latestPayroll.incentive || 0,
+            ctc: latestPayroll.ctc || 0
+          };
+        }
+      },
+      error: () => {
+        this.editPayLoading = false;
+      }
+    });
+  }
+
+  closeEditPay(): void {
+    if (this.editPaySaving) return;
+    this.editPayOpen = false;
+    this.editPayTarget = null;
+  }
+
+  saveEditPay(): void {
+    if (!this.editPayTarget) return;
+    this.editPaySaving = true;
+    this.hrService.updatePayroll(this.editPayModel).subscribe({
+      next: () => {
+        this.editPaySaving = false;
+        this.editPayOpen = false;
+        // Refresh the dashboard to show updated data
+        this.fetchDashboard();
+        // If on payroll tab, refresh that too
+        if (this.activeTab === 'payroll') {
+          this.loadPayrollOverview();
+        }
+      },
+      error: () => {
+        this.editPaySaving = false;
       }
     });
   }

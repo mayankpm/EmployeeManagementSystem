@@ -10,8 +10,19 @@ export class AuthGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    // Aggressively check authentication - clear everything if anything is wrong
+    const token = this.authService.getToken();
+    const user = this.authService.getUser();
+    
+    // If either token or user is missing, clear everything and redirect
+    if (!token || !user) {
+      this.clearSessionAndRedirect();
+      return false;
+    }
+
+    // Check if user is logged in (validates token format and expiration)
     if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/login']);
+      this.clearSessionAndRedirect();
       return false;
     }
 
@@ -20,8 +31,7 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const userDataRaw = sessionStorage.getItem('auth-user');
-    const userRoleCode = userDataRaw ? (JSON.parse(userDataRaw).roleCode || '').toString().toUpperCase() : '';
+    const userRoleCode = (user.roleCode || '').toString().toUpperCase();
 
     // Normalize checks: allow values like ADM*, ADMIN, ADMINISTRATOR to count as admin
     const isAdmin = userRoleCode.startsWith('ADM') || userRoleCode === 'ADMIN' || userRoleCode === 'ADMINISTRATOR';
@@ -37,12 +47,19 @@ export class AuthGuard implements CanActivate {
 
     // If role not allowed, send to their home
     if (isAdmin) {
-      this.router.navigate(['/admin/dashboard']);
+      this.router.navigate(['/admin/dashboard'], { replaceUrl: true });
     } else if (isHr) {
-      this.router.navigate(['/hr/dashboard']);
+      this.router.navigate(['/hr/dashboard'], { replaceUrl: true });
     } else {
-      this.router.navigate(['/employee/dashboard']);
+      this.router.navigate(['/employee/dashboard'], { replaceUrl: true });
     }
     return false;
+  }
+
+  private clearSessionAndRedirect(): void {
+    // Clear all session data
+    sessionStorage.clear();
+    // Use replaceUrl to prevent back navigation to protected route
+    this.router.navigate(['/login'], { replaceUrl: true });
   }
 }

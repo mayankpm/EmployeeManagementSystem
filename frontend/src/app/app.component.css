@@ -1,5 +1,8 @@
 /* App Component Styles */
 .container-fluid {
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background: linear-gradient(135deg, #fafbfc 0%, #f5f7fa 50%, #f0f4ff 100%);
+  background-attachment: fixed;
+  position: relative;
+  z-index: 1;
 }

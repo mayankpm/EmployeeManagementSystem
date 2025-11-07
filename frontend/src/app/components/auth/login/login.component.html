@@ -1,7 +1,28 @@
-<div class="container-fluid vh-100 bg-light">
-  <div class="row h-100 justify-content-center align-items-center">
-    <div class="col-md-5">
-      <div class="card shadow-lg border-0">
+<div class="login-page-wrapper">
+  <div class="row min-vh-100 g-0">
+    <!-- Left Column - Image with Welcome Message -->
+    <div class="col-lg-6 d-none d-lg-flex login-image-column">
+      <div class="login-image-wrapper">
+        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1920&h=1080&fit=crop&q=80" 
+             alt="Employee with laptop" 
+             class="login-image">
+        <div class="welcome-overlay">
+          <div class="welcome-content">
+            <i class="fas fa-users welcome-icon"></i>
+            <h1 class="welcome-title">Welcome Back!</h1>
+            <p class="welcome-subtitle">Manage your employee information with ease</p>
+            <p class="welcome-description">Sign in to access your dashboard and manage your profile, view payroll, and stay connected with your team.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Column - Login Form -->
+    <div class="col-lg-6 login-form-column">
+      <div class="login-form-container">
+        <div class="d-flex align-items-center justify-content-center min-vh-100 py-5">
+          <div class="w-100" style="max-width: 450px;">
+            <div class="card shadow-lg border-0">
         <div class="card-header bg-primary text-white text-center py-4">
           <h3 class="mb-0">
             <i class="fas fa-users me-2"></i>Employee Portal
@@ -70,6 +91,8 @@
             <i class="fas fa-exclamation-triangle me-2"></i>
             {{ errorMessage }}
             <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+          </div>
+            </div>
           </div>
         </div>
       </div>

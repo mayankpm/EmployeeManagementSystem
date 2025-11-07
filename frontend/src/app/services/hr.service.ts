@@ -49,6 +49,13 @@ export class HrService {
     });
   }
 
+  updatePayroll(payroll: any): Observable<any> {
+    // PUT /api/payroll/hr/update
+    return this.http.put<any>(HR_API.replace('/hr/', '/payroll/hr/update'), payroll, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
   getPayrollOverview(): Observable<any> {
     return this.http.get<any>(HR_API.replace('/hr/', '/payroll/hr'), { headers: this.getAuthHeaders() });
   }

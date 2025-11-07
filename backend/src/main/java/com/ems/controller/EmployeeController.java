@@ -111,8 +111,7 @@ public class EmployeeController {
         }
     }
 
-    // EMPLOYEE SEARCH FUNCTIONALITY - UPDATED VERSION
- // EMPLOYEE SEARCH FUNCTIONALITY - UPDATED VERSION
+  
     @PostMapping("/search")
     public ResponseEntity<?> searchEmployees(@RequestHeader("Authorization") String token,
                                            @RequestBody SearchRequest searchRequest) {
@@ -164,7 +163,8 @@ public class EmployeeController {
         return new EmployeeSearchResultDTO(
             employee.getFirstName() + " " + employee.getLastName(),
             employee.getDeptCode() != null ? employee.getDeptCode() : "N/A",
-            employee.getWorkMail() != null ? employee.getWorkMail() : "N/A"
+            employee.getWorkMail() != null ? employee.getWorkMail() : "N/A",
+            employee.getPhone() != null ? employee.getPhone() : "N/A"
         );
     }
 }

@@ -23,6 +23,7 @@ import { NavbarComponent } from './components/shared/navbar/navbar.component';
 // Interceptors
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AdminDashboardComponent } from './components/admin/admin-dashboard/admin-dashboard.component';
+import { AdminAddEmployeeComponent } from './components/admin/admin-add-employee/admin-add-employee.component';
 import { HrDashboardComponent } from './components/hr/hr-dashboard/hr-dashboard.component';
 
 @NgModule({
@@ -35,6 +36,7 @@ import { HrDashboardComponent } from './components/hr/hr-dashboard/hr-dashboard.
     EmployeePayrollComponent,
     NavbarComponent,
     AdminDashboardComponent,
+    AdminAddEmployeeComponent,
     HrDashboardComponent
   ],
   imports: [
