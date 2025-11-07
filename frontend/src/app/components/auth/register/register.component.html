@@ -91,11 +91,16 @@
                        class="form-control" 
                        id="phone"
                        formControlName="phone"
-                       placeholder="Enter phone number"
+                       placeholder="Enter 10-digit phone number"
+                       maxlength="10"
+                       (input)="onPhoneInput($event)"
                        [class.is-invalid]="phone?.invalid && phone?.touched">
               </div>
-              <div class="invalid-feedback" *ngIf="phone?.errors?.['required']">
-                Phone number is required
+              <div class="invalid-feedback d-block" *ngIf="phone?.invalid && phone?.touched">
+                <span *ngIf="phone?.errors?.['required']">Phone number is required</span>
+                <span *ngIf="phone?.errors?.['phoneInvalid']">
+                  {{ phone?.errors?.['message'] || 'Phone number must have exactly 10 digits' }}
+                </span>
               </div>
             </div>
 
@@ -125,8 +130,9 @@
                          [class.is-invalid]="age?.invalid && age?.touched">
                   <div class="invalid-feedback d-block" *ngIf="age?.invalid && age?.touched">
                     <span *ngIf="age?.errors?.['required']">Age is required</span>
-                    <span *ngIf="age?.errors?.['min']">Minimum age is 18</span>
-                    <span *ngIf="age?.errors?.['max']">Maximum age is 100</span>
+                    <span *ngIf="age?.errors?.['ageInvalid']">
+                      {{ age?.errors?.['message'] || 'Age must be between 18 and 100' }}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -162,8 +168,6 @@
               </div>
             </div>
 
-            
-
             <div class="d-grid gap-2">
               <button type="submit" 
                       class="btn btn-success btn-lg" 
@@ -190,6 +194,7 @@
           <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
             <i class="fas fa-check-circle me-2"></i>
             {{ successMessage }}
+            <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
           </div>
             </div>
           </div>

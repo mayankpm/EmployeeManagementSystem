@@ -111,8 +111,7 @@ public class EmployeeController {
         }
     }
 
-    // EMPLOYEE SEARCH FUNCTIONALITY - UPDATED VERSION
- // EMPLOYEE SEARCH FUNCTIONALITY - UPDATED VERSION
+  
     @PostMapping("/search")
     public ResponseEntity<?> searchEmployees(@RequestHeader("Authorization") String token,
                                            @RequestBody SearchRequest searchRequest) {

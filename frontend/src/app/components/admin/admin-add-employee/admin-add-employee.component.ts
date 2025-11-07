@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
-import { AbstractControl, ValidationErrors } from '@angular/forms';
 
 @Component({
   selector: 'app-admin-add-employee',
@@ -31,9 +30,7 @@ export class AdminAddEmployeeComponent implements OnInit {
       address: ['', [Validators.required]],
       age: [null, [Validators.required, Validators.min(18), Validators.max(100)]],
       deptCode: ['', [Validators.required]],
-      roleCode: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]]
+      roleCode: ['', [Validators.required]]
     });
   }
 
@@ -76,17 +73,11 @@ export class AdminAddEmployeeComponent implements OnInit {
 
   onSubmit(): void {
     if (this.addEmployeeForm.valid) {
-      if (this.addEmployeeForm.value.password !== this.addEmployeeForm.value.confirmPassword) {
-        this.errorMessage = 'Passwords do not match';
-        return;
-      }
-
       this.loading = true;
       this.errorMessage = '';
       this.successMessage = '';
 
       const formData = { ...this.addEmployeeForm.value };
-      delete formData.confirmPassword;
 
       this.authService.register(formData).subscribe({
         next: (response) => {
@@ -119,6 +110,7 @@ export class AdminAddEmployeeComponent implements OnInit {
     this.router.navigate(['/admin/dashboard']);
   }
 
+  // Getters for form controls
   get firstName() { return this.addEmployeeForm.get('firstName'); }
   get lastName() { return this.addEmployeeForm.get('lastName'); }
   get personalEmail() { return this.addEmployeeForm.get('personalEmail'); }
@@ -127,7 +119,4 @@ export class AdminAddEmployeeComponent implements OnInit {
   get age() { return this.addEmployeeForm.get('age'); }
   get deptCode() { return this.addEmployeeForm.get('deptCode'); }
   get roleCode() { return this.addEmployeeForm.get('roleCode'); }
-  get password() { return this.addEmployeeForm.get('password'); }
-  get confirmPassword() { return this.addEmployeeForm.get('confirmPassword'); }
 }
-
