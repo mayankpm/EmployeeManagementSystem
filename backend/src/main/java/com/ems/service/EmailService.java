@@ -51,7 +51,21 @@ public class EmailService {
     }
 
     private String generateWorkEmail(String firstName, String lastName) {
-        return firstName.toLowerCase() + "." + lastName.toLowerCase() + "@" + COMPANY_DOMAIN;
+        // Combine full name and split into parts
+        String fullName = (firstName + " " + lastName).trim();
+        String[] nameParts = fullName.split("\\s+");
+
+        // Take only first two parts, or all if less than 2
+        String emailPrefix = "";
+        if (nameParts.length >= 2) {
+            emailPrefix = nameParts[0].toLowerCase() + "." + nameParts[1].toLowerCase();
+        } else if (nameParts.length == 1) {
+            emailPrefix = nameParts[0].toLowerCase();
+        } else {
+            emailPrefix = "user"; // fallback
+        }
+
+        return emailPrefix + "@" + COMPANY_DOMAIN;
     }
 
     private String generatePassword(int length) {
